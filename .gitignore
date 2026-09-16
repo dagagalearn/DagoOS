@@ -1,0 +1,32 @@
+# ---- Operating System junk ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ---- Editor / IDE ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---- Environment / secrets ----
+# Never commit API keys, service account JSON, or .env files.
+.env
+.env.local
+*.key
+serviceAccountKey.json
+
+# ---- Node (only if we ever add a tool, harmless otherwise) ----
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ---- Firebase ----
+.firebase/
+firebase-debug.log
