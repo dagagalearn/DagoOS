@@ -46,7 +46,8 @@ async function loadPageModule(page) {
       console.log("[DagoOS] Dashboard module not built yet — Phase 7.");
       break;
     case "ledger":
-      // await import("./modules/ledger.js");
+        const { initLedger } = await import("./modules/ledger.js");
+      await initLedger();
       break;
     case "journal":
       // await import("./modules/journal.js");
