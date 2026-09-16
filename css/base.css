@@ -1,0 +1,198 @@
+/* ==========================================================================
+   DagoOS — Base Layer
+   --------------------------------------------------------------------------
+   Purpose:
+     1. Reset browser default styling (so all browsers start identical).
+     2. Apply typography and background using our variables.
+     3. Set sane defaults for common elements (links, buttons, inputs).
+
+   Load order: variables.css → base.css → layout.css → components.css
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   1. UNIVERSAL RESET
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;      /* padding/border count INSIDE width — no surprises */
+  margin: 0;                   /* kill browser default margins everywhere */
+  padding: 0;
+}
+
+html {
+  /* Prevent iOS from auto-zooming on input focus */
+  -webkit-text-size-adjust: 100%;
+  /* Smooth scrolling for in-page anchors */
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;           /* page always fills the viewport */
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  font-weight: var(--weight-normal);
+  /* Crisper text rendering on macOS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Block horizontal scroll from any stray wide element */
+  overflow-x: hidden;
+}
+
+
+/* --------------------------------------------------------------------------
+   2. MEDIA & EMBEDS — behave predictably
+   -------------------------------------------------------------------------- */
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;             /* never overflow its container */
+  height: auto;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. TYPOGRAPHY
+   -------------------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl);  }
+h4 { font-size: var(--text-lg);  }
+h5 { font-size: var(--text-md);  }
+h6 { font-size: var(--text-base); }
+
+p {
+  margin-bottom: var(--space-4);
+}
+
+small {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+strong, b {
+  font-weight: var(--weight-semibold);
+}
+
+code, pre, kbd {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+code {
+  background: var(--color-surface-alt);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+
+/* --------------------------------------------------------------------------
+   4. LINKS
+   -------------------------------------------------------------------------- */
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+
+/* --------------------------------------------------------------------------
+   5. FORM ELEMENTS — inherit fonts, drop native chrome
+   -------------------------------------------------------------------------- */
+
+input,
+button,
+textarea,
+select {
+  font: inherit;               /* inherit font from parent — no 12px inputs */
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Remove the ugly default focus ring, but add our own accessible one */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+
+/* --------------------------------------------------------------------------
+   6. LISTS — strip markers by default (add back where wanted)
+   -------------------------------------------------------------------------- */
+
+ul, ol {
+  list-style: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   7. SCROLLBAR — subtle, on-brand (Chromium & Firefox)
+   -------------------------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-hi);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-hi) var(--color-bg);
+}
+
+
+/* --------------------------------------------------------------------------
+   8. UTILITY CLASSES — tiny helpers reused everywhere
+   -------------------------------------------------------------------------- */
+
+.hidden { display: none !important; }
+.sr-only {                     /* Visible only to screen readers */
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
