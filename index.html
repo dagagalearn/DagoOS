@@ -91,7 +91,8 @@
     <header class="header">
       <div class="header__title">Command Center</div>
       <div class="header__actions">
-        <!-- Sign-in button, theme toggle etc. will land here in Phase 2+ -->
+        <!-- Auth UI (sign-in button OR user chip) is injected here by main.js -->
+        <div id="auth-area" class="auth-area"></div>
       </div>
     </header>
 
@@ -113,9 +114,7 @@
 
   </div>
 
-  <!-- TEMP: Phase 2 Batch A connection test — removed in Batch B -->
-  <script type="module">
-    import "./js/core/firebase-config.js";
-  </script>
+  <script type="module" src="js/main.js"></script>
+
 </body>
 </html>
