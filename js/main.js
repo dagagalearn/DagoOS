@@ -11,7 +11,7 @@
    ========================================================================== */
 
 import "./core/firebase-config.js";        // side-effect: initializes Firebase
-import { onAuthChange, signInWithGoogle, signOutUser } from "./core/auth.js";
+import { onAuthChange, signInWithGoogle, signOutUser, handleRedirectResult } from "./core/auth.js";
 import { renderAuthArea } from "./core/ui-helpers.js";
 
 
@@ -89,8 +89,9 @@ async function handleSignOut() {
 /* --------------------------------------------------------------------------
    4. BOOT
    -------------------------------------------------------------------------- */
-function boot() {
+async function boot() {
   console.log("[DagoOS] Booting…");
+await handleRedirectResult();
 
   highlightActiveNav();
 
