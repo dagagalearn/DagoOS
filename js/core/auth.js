@@ -4,16 +4,23 @@
    Wraps Firebase Auth so the rest of the app never imports firebase/auth
    directly. If we ever switch sign-in providers, only this file changes.
 
+   On desktop: uses signInWithPopup (smoother).
+   On mobile:  uses signInWithRedirect (works with blocked third-party cookies,
+               Safari iOS, private mode, etc).
+
    Exports:
-     signInWithGoogle()  → Promise<UserCredential>
-     signOutUser()       → Promise<void>
-     onAuthChange(cb)    → unsubscribe function
-     getCurrentUser()    → User | null
+     signInWithGoogle()   → Promise<UserCredential | void>
+     signOutUser()        → Promise<void>
+     onAuthChange(cb)     → unsubscribe function
+     getCurrentUser()     → User | null
+     handleRedirectResult() → Promise<UserCredential | null>
    ========================================================================== */
 
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -22,27 +29,41 @@ import { auth } from "./firebase-config.js";
 
 
 /* --------------------------------------------------------------------------
-   1. GOOGLE PROVIDER — configured once, reused for every sign-in
+   1. GOOGLE PROVIDER
    -------------------------------------------------------------------------- */
 const googleProvider = new GoogleAuthProvider();
-
-// Always show the account picker (otherwise Google silently reuses the last
-// account, which is annoying if you have multiple Google logins).
 googleProvider.setCustomParameters({ prompt: "select_account" });
 
 
 /* --------------------------------------------------------------------------
-   2. SIGN IN
+   2. MOBILE DETECTION
+   --------------------------------------------------------------------------
+   We use popup on desktop, redirect on mobile + small tablets.
+   The threshold matches our CSS breakpoint so behavior feels consistent.
+   -------------------------------------------------------------------------- */
+function isMobile() {
+  // Primary check: screen width
+  const narrow = window.matchMedia("(max-width: 900px)").matches;
+  // Secondary check: touch device or mobile user-agent
+  const touch  = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+  const ua     = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  return narrow || (touch && ua);
+}
+
+
+/* --------------------------------------------------------------------------
+   3. SIGN IN — popup on desktop, redirect on mobile
    -------------------------------------------------------------------------- */
 export async function signInWithGoogle() {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result;                       // { user, credential, ... }
+    if (isMobile()) {
+      // Redirect method — will leave the page and come back
+      await signInWithRedirect(auth, googleProvider);
+      return;   // execution stops here; page navigates away
+    }
+    // Desktop: popup
+    return await signInWithPopup(auth, googleProvider);
   } catch (err) {
-    // Common codes we might hit:
-    //   auth/popup-closed-by-user     → user closed the popup
-    //   auth/popup-blocked            → browser blocked it
-    //   auth/unauthorized-domain      → github.io not whitelisted
     console.error("[DagoOS auth] Sign-in failed:", err.code, err.message);
     throw err;
   }
@@ -50,7 +71,28 @@ export async function signInWithGoogle() {
 
 
 /* --------------------------------------------------------------------------
-   3. SIGN OUT
+   4. HANDLE REDIRECT RESULT
+   --------------------------------------------------------------------------
+   After the user signs in via redirect and lands back on the page,
+   Firebase needs a moment to process the result. This function awaits it.
+   Called once on boot.
+   -------------------------------------------------------------------------- */
+export async function handleRedirectResult() {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result?.user) {
+      console.log("[DagoOS auth] Redirect sign-in complete:", result.user.displayName);
+    }
+    return result;
+  } catch (err) {
+    console.error("[DagoOS auth] Redirect result error:", err.code, err.message);
+    return null;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   5. SIGN OUT
    -------------------------------------------------------------------------- */
 export async function signOutUser() {
   await signOut(auth);
@@ -58,12 +100,7 @@ export async function signOutUser() {
 
 
 /* --------------------------------------------------------------------------
-   4. OBSERVE AUTH STATE
-   --------------------------------------------------------------------------
-   Pass a callback. It fires immediately with either the current user or
-   null, then again on every sign-in / sign-out.
-
-   Returns an "unsubscribe" function in case we ever need to detach.
+   6. OBSERVE AUTH STATE
    -------------------------------------------------------------------------- */
 export function onAuthChange(callback) {
   return onAuthStateChanged(auth, callback);
@@ -71,7 +108,7 @@ export function onAuthChange(callback) {
 
 
 /* --------------------------------------------------------------------------
-   5. SYNCHRONOUS GETTER — for convenience after boot
+   7. SYNCHRONOUS GETTER
    -------------------------------------------------------------------------- */
 export function getCurrentUser() {
   return auth.currentUser;
