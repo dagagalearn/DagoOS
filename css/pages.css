@@ -655,6 +655,58 @@ body[data-auth] .auth-gate {
   font-style: italic;
   margin-top: var(--space-3);
 }
+
+/* --------------------------------------------------------------------------
+   ACADEMY — exams
+   -------------------------------------------------------------------------- */
+
+.exam-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.exam-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+}
+
+.exam-row__main { flex: 1; min-width: 0; }
+
+.exam-row__name {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+}
+
+.exam-row__meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.exam-row__desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.exam-row__pct {
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  padding: 0 var(--space-3);
+  white-space: nowrap;
+}
+
+.exam-row__pct--great { color: var(--color-success); }
+.exam-row__pct--ok    { color: var(--color-info); }
+.exam-row__pct--low   { color: var(--color-danger); }
 /* --------------------------------------------------------------------------
    RESPONSIVE
    -------------------------------------------------------------------------- */
