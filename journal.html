@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dago Journal · DagoOS</title>
+
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%236366f1'/></svg>" />
+</head>
+
+<body data-page="journal" data-auth="out">
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <span class="sidebar__brand-dot"></span>
+        <span>DagoOS</span>
+      </div>
+
+      <nav class="sidebar__section">
+        <div class="sidebar__label">Overview</div>
+        <a class="nav-link" href="index.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>Command Center</span>
+        </a>
+      </nav>
+
+      <nav class="sidebar__section">
+        <div class="sidebar__label">Modules</div>
+        <a class="nav-link" href="ledger.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="6" width="20" height="14" rx="2"/>
+            <path d="M2 10h20"/>
+          </svg>
+          <span>Dago Ledger</span>
+        </a>
+        <a class="nav-link" href="journal.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4v16a2 2 0 0 0 2 2h14V4H6a2 2 0 0 0-2 2z"/>
+            <path d="M8 8h8M8 12h8M8 16h5"/>
+          </svg>
+          <span>Dago Journal</span>
+        </a>
+        <a class="nav-link" href="academy.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 9l10-5 10 5-10 5z"/>
+            <path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/>
+          </svg>
+          <span>Dago Academy</span>
+        </a>
+        <a class="nav-link" href="vault.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          </svg>
+          <span>Dago Vault</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="header">
+      <div class="header__title">Dago Journal</div>
+      <div class="header__actions">
+        <div id="auth-area" class="auth-area"></div>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <div class="page-header">
+        <h1 class="page-header__title">Dago Journal</h1>
+        <p class="page-header__subtitle">Memories, notes, reflections.</p>
+      </div>
+
+      <!-- Entries list (data first) -->
+      <section class="card">
+        <h2 class="card__title">Entries</h2>
+        <div id="entry-list" class="entry-list"></div>
+        <p id="entry-empty" class="empty-state hidden">
+          No entries yet. Write your first one below.
+        </p>
+      </section>
+
+      <!-- New / edit entry form -->
+      <section class="card">
+        <h2 class="card__title" id="entry-form-title">New entry</h2>
+
+        <form id="entry-form" class="form-grid">
+
+          <label class="field field--wide">
+            <span class="field__label">Title</span>
+            <input id="entry-title" class="field__input" type="text"
+                   placeholder="Give this entry a title" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Date</span>
+            <input id="entry-date" class="field__input" type="date" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Mood</span>
+            <select id="entry-mood" class="field__input">
+              <option value="">—</option>
+              <option value="bad">Bad</option>
+              <option value="ok">OK</option>
+              <option value="good">Good</option>
+              <option value="great">Great</option>
+            </select>
+          </label>
+
+          <label class="field field--wide">
+            <span class="field__label">Tags (comma separated)</span>
+            <input id="entry-tags" class="field__input" type="text"
+                   placeholder="personal, reflection, work" />
+          </label>
+
+          <label class="field field--wide">
+            <span class="field__label">Body (markdown supported)</span>
+            <textarea id="entry-body" class="field__input field__input--textarea"
+                      rows="8"
+                      placeholder="# Today&#10;&#10;Use **bold**, *italic*, `code`, and&#10;&#10;- lists&#10;- like this"></textarea>
+          </label>
+
+          <div class="field field--wide entry-preview-wrap">
+            <span class="field__label">Live preview</span>
+            <div id="entry-preview" class="entry-preview markdown"></div>
+          </div>
+
+          <div class="field field--wide field--actions entry-form-actions">
+            <button id="entry-submit" class="btn btn--primary" type="submit">
+              Add entry
+            </button>
+            <button id="entry-cancel" class="btn btn--ghost hidden" type="button">
+              Cancel
+            </button>
+          </div>
+
+        </form>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>
