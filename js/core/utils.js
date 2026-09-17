@@ -9,8 +9,8 @@
 /* --------------------------------------------------------------------------
    1. CURRENCY — format a number as EUR (change base currency in one place)
    -------------------------------------------------------------------------- */
-const BASE_CURRENCY = "EUR";
-const LOCALE        = "nl-NL";    // affects thousand separators + symbol
+const BASE_CURRENCY = "ETB";
+const LOCALE        = "en-ET";    // affects thousand separators + symbol
 
 export function formatCurrency(amount) {
   const n = Number(amount) || 0;
