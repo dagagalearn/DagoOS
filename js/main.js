@@ -55,9 +55,11 @@ async function loadPageModule(page) {
       break;
     }
 
-    case "academy":
-      // await import("./modules/academy.js");
-      break;
+    case "academy": {
+  const { initAcademy } = await import("./modules/academy.js");
+  await initAcademy();
+  break;
+}
 
     case "vault":
       // await import("./modules/vault.js");
