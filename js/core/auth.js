@@ -42,12 +42,13 @@ googleProvider.setCustomParameters({ prompt: "select_account" });
    The threshold matches our CSS breakpoint so behavior feels consistent.
    -------------------------------------------------------------------------- */
 function isMobile() {
-  // Primary check: screen width
-  const narrow = window.matchMedia("(max-width: 900px)").matches;
-  // Secondary check: touch device or mobile user-agent
-  const touch  = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-  const ua     = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  return narrow || (touch && ua);
+  // One rule, no guessing: touch-primary devices (phones, tablets) use
+  // redirect sign-in. Mouse-primary devices (desktops, laptops) use popup.
+  //
+  // This is a browser-native CSS media query. It cannot be fooled by
+  // "desktop mode", user-agent spoofing, or viewport resizing — a finger
+  // is still coarse, a mouse is still fine.
+  return window.matchMedia("(pointer: coarse)").matches;
 }
 
 
