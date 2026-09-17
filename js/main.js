@@ -3,26 +3,23 @@
    --------------------------------------------------------------------------
    Loaded by every page. Responsibilities:
      1. Boot Firebase (side-effect of importing firebase-config)
-     2. Watch auth state, update header UI
+     2. Watch auth state, update header UI + auth gate
      3. Highlight the active nav link
      4. Load the page-specific module based on <body data-page="...">
-
-   Future pages will load the SAME file. Nothing here is dashboard-specific.
    ========================================================================== */
 
 import "./core/firebase-config.js";        // side-effect: initializes Firebase
-import { onAuthChange, signInWithGoogle, signOutUser, handleRedirectResult } from "./core/auth.js";
+import { onAuthChange, signInWithGoogle, signOutUser } from "./core/auth.js";
 import { renderAuthArea } from "./core/ui-helpers.js";
 
 
 /* --------------------------------------------------------------------------
-   1. NAV HIGHLIGHT — matches <body data-page="X"> to nav-link href="X.html"
+   1. NAV HIGHLIGHT
    -------------------------------------------------------------------------- */
 function highlightActiveNav() {
-  const page = document.body.dataset.page;         // e.g. "dashboard"
+  const page = document.body.dataset.page;
   if (!page) return;
 
-  // The nav uses href="index.html" for the dashboard, others match the page id.
   const targetHref = page === "dashboard" ? "index.html" : `${page}.html`;
 
   document.querySelectorAll(".nav-link").forEach(link => {
@@ -37,7 +34,7 @@ function highlightActiveNav() {
 
 
 /* --------------------------------------------------------------------------
-   2. PAGE MODULE DISPATCH — will grow as we add modules
+   2. PAGE MODULE DISPATCH
    -------------------------------------------------------------------------- */
 async function loadPageModule(page) {
   switch (page) {
@@ -45,20 +42,27 @@ async function loadPageModule(page) {
       // await import("./modules/dashboard.js");
       console.log("[DagoOS] Dashboard module not built yet — Phase 7.");
       break;
-    case "ledger":
-        const { initLedger } = await import("./modules/ledger.js");
+
+    case "ledger": {
+      const { initLedger } = await import("./modules/ledger.js");
       await initLedger();
       break;
-    case "journal":
-           const { initJournal } = await import("./modules/journal.js");
+    }
+
+    case "journal": {
+      const { initJournal } = await import("./modules/journal.js");
       await initJournal();
       break;
+    }
+
     case "academy":
       // await import("./modules/academy.js");
       break;
+
     case "vault":
       // await import("./modules/vault.js");
       break;
+
     default:
       console.warn("[DagoOS] Unknown page:", page);
   }
@@ -66,18 +70,14 @@ async function loadPageModule(page) {
 
 
 /* --------------------------------------------------------------------------
-   3. HANDLERS passed to the UI helpers
+   3. HANDLERS
    -------------------------------------------------------------------------- */
 async function handleSignIn() {
   try {
     await signInWithGoogle();
   } catch (err) {
-    alert(
-      "Sign-in failed.\n\n" +
-      "Most common cause: the domain isn't authorized in Firebase.\n" +
-      "Check: Authentication → Settings → Authorized domains.\n\n" +
-      "Error code: " + (err.code || err.message)
-    );
+    // Errors are already surfaced in auth.js with friendly messages.
+    // Nothing more to do here.
   }
 }
 
@@ -87,43 +87,7 @@ async function handleSignOut() {
 
 
 /* --------------------------------------------------------------------------
-   4. BOOT
-   -------------------------------------------------------------------------- */
-async function boot() {
-  console.log("[DagoOS] Booting…");
-await handleRedirectResult();
-
-  highlightActiveNav();
-
-  const page = document.body.dataset.page;
-
-  // Watch auth. Callback fires immediately (with user or null),
-  // then again on every sign-in / sign-out.
-  onAuthChange(async (user) => {
-    if (user) {
-      console.log(`[DagoOS] Signed in as: ${user.displayName}  ·  UID: ${user.uid}`);
-      document.body.dataset.auth = "in";
-      setAuthGate(false);
-      await loadPageModule(page);      // load module ONLY when signed in
-    } else {
-      console.log("[DagoOS] Signed out");
-      document.body.dataset.auth = "out";
-      setAuthGate(true);
-    }
-
-    renderAuthArea(user, {
-      onSignIn:  handleSignIn,
-      onSignOut: handleSignOut
-    });
-  });
-}
-
-
-/* --------------------------------------------------------------------------
-   AUTH GATE — show a "please sign in" panel when logged out
-   --------------------------------------------------------------------------
-   The gate is injected into .main on demand. When active, it covers the
-   content area. When inactive, it's removed and page modules render freely.
+   4. AUTH GATE
    -------------------------------------------------------------------------- */
 function setAuthGate(active) {
   const main = document.querySelector(".main");
@@ -159,7 +123,36 @@ function setAuthGate(active) {
   }
 }
 
-// DOM might not be ready if the module loads before parsing finishes.
+
+/* --------------------------------------------------------------------------
+   5. BOOT
+   -------------------------------------------------------------------------- */
+function boot() {
+  console.log("[DagoOS] Booting…");
+
+  highlightActiveNav();
+
+  const page = document.body.dataset.page;
+
+  onAuthChange(async (user) => {
+    if (user) {
+      console.log(`[DagoOS] Signed in as: ${user.displayName}  ·  UID: ${user.uid}`);
+      document.body.dataset.auth = "in";
+      setAuthGate(false);
+      await loadPageModule(page);
+    } else {
+      console.log("[DagoOS] Signed out");
+      document.body.dataset.auth = "out";
+      setAuthGate(true);
+    }
+
+    renderAuthArea(user, {
+      onSignIn:  handleSignIn,
+      onSignOut: handleSignOut
+    });
+  });
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", boot);
 } else {
