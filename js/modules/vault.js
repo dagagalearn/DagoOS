@@ -25,6 +25,7 @@
      • Detail modal per file
      • Click-to-copy Drive link
      • Link validation on add
+     • Floating action button → add/edit modal
    ========================================================================== */
 
 import { listDocs, addDoc, updateDoc, deleteDoc } from "../core/firestore.js";
@@ -111,10 +112,10 @@ const state = {
   searchQuery: "",
   searchScope: "all",
   sort: "date-desc",
-  view: "grid",              // "grid" | "list"
-  selected: new Set(),       // ids of bulk-selected files
+  view: "grid",
+  selected: new Set(),
   editingId: null,
-  recent: []                 // from localStorage
+  recent: []
 };
 
 let refs = {};
@@ -130,6 +131,7 @@ export async function initVault() {
   bindForm();
   bindBulkForm();
   bindModal();
+  bindAddModal();
   await loadAndRender();
 }
 
@@ -149,9 +151,15 @@ function cacheRefs() {
     grid:          document.getElementById("vault-grid"),
     empty:         document.getElementById("vault-empty"),
 
-    // Add form
+    // Add/Edit modal (single form)
+    addModal:      document.getElementById("vault-add-modal"),
+    addClose:      document.getElementById("vault-add-close"),
+    addTitle:      document.getElementById("vault-add-title"),
+    fab:           document.getElementById("vault-fab"),
+    modalTabs:     document.querySelectorAll(".modal__tab"),
+    modalPanels:   document.querySelectorAll(".modal__panel"),
+
     form:          document.getElementById("vault-form"),
-    formTitle:     document.getElementById("vault-form-title"),
     title:         document.getElementById("vault-title"),
     url:           document.getElementById("vault-url"),
     category:      document.getElementById("vault-category"),
@@ -164,9 +172,10 @@ function cacheRefs() {
     categoryList:  document.getElementById("vault-category-list"),
     tagsList:      document.getElementById("vault-tags-list"),
 
-    // Bulk paste
+    // Bulk paste (inside modal)
     bulkForm:      document.getElementById("vault-bulk-form"),
     bulkText:      document.getElementById("vault-bulk-text"),
+    bulkCancel:    document.getElementById("vault-bulk-cancel"),
 
     // Bulk actions bar
     bulkBar:       document.getElementById("vault-bulk-bar"),
@@ -176,25 +185,11 @@ function cacheRefs() {
     bulkDelete:    document.getElementById("vault-bulk-delete"),
     bulkClear:     document.getElementById("vault-bulk-clear"),
 
-    // Modal
+    // Detail modal
     modal:         document.getElementById("vault-modal"),
     modalBody:     document.getElementById("vault-modal-body"),
     modalClose:    document.getElementById("vault-modal-close")
   };
-
-  // Populate category dropdown
-  if (refs.category) {
-    for (const cat of CATEGORIES) {
-      refs.category.appendChild(el("option", { value: cat, text: cat }));
-    }
-  }
-
-  // Populate bulk-category dropdown (for bulk actions)
-  if (refs.bulkCategory) {
-    for (const cat of CATEGORIES) {
-      refs.bulkCategory.appendChild(el("option", { value: cat, text: cat }));
-    }
-  }
 
   // Populate search-scope dropdown
   if (refs.searchScope) {
@@ -212,7 +207,14 @@ function cacheRefs() {
     refs.sort.value = "date-desc";
   }
 
-  // Set today's date
+  // Populate bulk-category dropdown
+  if (refs.bulkCategory) {
+    for (const cat of CATEGORIES) {
+      refs.bulkCategory.appendChild(el("option", { value: cat, text: cat }));
+    }
+  }
+
+  // Set today's date in the form
   if (refs.date && !refs.date.value) refs.date.value = todayISO();
 }
 
@@ -238,22 +240,19 @@ async function loadAndRender() {
 
 
 /* --------------------------------------------------------------------------
-   6. FILTER + SORT + SEARCH HELPERS
+   6. FILTER + SORT + SEARCH
    -------------------------------------------------------------------------- */
 function getVisibleFiles() {
   let files = [...state.files];
 
-  // Category filter
   if (state.filterCategory !== "All") {
     files = files.filter(f => f.category === state.filterCategory);
   }
 
-  // Starred filter
   if (state.filterStarred) {
     files = files.filter(f => f.starred === true);
   }
 
-  // Search
   const q = state.searchQuery.trim().toLowerCase();
   if (q) {
     files = files.filter(f => {
@@ -261,7 +260,6 @@ function getVisibleFiles() {
         return (f.title || "").toLowerCase().includes(q)
             || (f.tags || []).some(t => t.toLowerCase().includes(q));
       }
-      // all fields
       const haystack = [
         f.title, f.description, f.notes, f.category, f.date,
         ...(f.tags || [])
@@ -270,7 +268,6 @@ function getVisibleFiles() {
     });
   }
 
-  // Sort
   files.sort((a, b) => {
     switch (state.sort) {
       case "date-asc":   return (a.date || "").localeCompare(b.date || "");
@@ -289,7 +286,7 @@ function getVisibleFiles() {
 
 
 /* --------------------------------------------------------------------------
-   7. CATEGORY TABS with counts
+   7. CATEGORY TABS
    -------------------------------------------------------------------------- */
 function renderCategoryTabs() {
   if (!refs.tabsRow) return;
@@ -306,7 +303,6 @@ function renderCategoryTabs() {
     const btn = el("button", {
       class: "tab" + (state.filterCategory === cat && !state.filterStarred ? " is-active" : ""),
       type: "button",
-      "data-cat": cat,
       onclick: () => {
         state.filterCategory = cat;
         state.filterStarred = false;
@@ -320,7 +316,6 @@ function renderCategoryTabs() {
     refs.tabsRow.appendChild(btn);
   }
 
-  // Starred tab (special)
   if (refs.starredTab) {
     refs.starredTab.classList.toggle("is-active", state.filterStarred);
     const starredCount = state.files.filter(f => f.starred).length;
@@ -332,7 +327,7 @@ function renderCategoryTabs() {
 
 
 /* --------------------------------------------------------------------------
-   8. GRID / LIST RENDER
+   8. GRID / LIST
    -------------------------------------------------------------------------- */
 function renderGrid() {
   if (!refs.grid) return;
@@ -397,25 +392,21 @@ function buildFileCard(f) {
     el("button", {
       class: "prop-row__btn",
       type: "button",
-      title: "Open in Drive",
       onclick: (e) => { e.stopPropagation(); openInDrive(f); }
     }, "Open"),
     el("button", {
       class: "prop-row__btn",
       type: "button",
-      title: "Copy link",
       onclick: (e) => { e.stopPropagation(); copyLink(f); }
     }, "Copy"),
     el("button", {
       class: "prop-row__btn",
       type: "button",
-      title: "Edit",
       onclick: (e) => { e.stopPropagation(); beginEdit(f); }
     }, "Edit"),
     el("button", {
       class: "prop-row__btn prop-row__btn--danger",
       type: "button",
-      title: "Delete",
       onclick: (e) => { e.stopPropagation(); handleDelete(f.id, f.title); }
     }, "Delete")
   );
@@ -461,18 +452,19 @@ function bindForm() {
       description: (refs.description.value || "").trim(),
       notes:       (refs.notes.value || "").trim(),
       tags:        parseTags(refs.tags.value),
-      date:        refs.date.value || todayISO(),
-      starred:     false
+      date:        refs.date.value || todayISO()
     };
 
     try {
       if (state.editingId) {
         await updateDoc("vaultFiles", state.editingId, data);
       } else {
+        data.starred = false;
         data.viewCount = 0;
         await addDoc("vaultFiles", data);
       }
       resetForm();
+      closeAddModal();
       await loadAndRender();
     } catch (err) {
       console.error("[Vault] Save failed:", err);
@@ -480,12 +472,20 @@ function bindForm() {
     }
   });
 
-  refs.cancel?.addEventListener("click", resetForm);
+  refs.cancel?.addEventListener("click", () => {
+    resetForm();
+    closeAddModal();
+  });
 }
 
 
 function beginEdit(f) {
   state.editingId = f.id;
+  openAddModal(f);
+}
+
+
+function beginEditFill(f) {
   refs.title.value       = f.title || "";
   refs.url.value         = f.url || "";
   refs.category.value    = f.category || "Others";
@@ -493,11 +493,6 @@ function beginEdit(f) {
   refs.notes.value       = f.notes || "";
   refs.tags.value        = (f.tags || []).join(", ");
   refs.date.value        = f.date || todayISO();
-
-  refs.formTitle.textContent = "Edit file";
-  refs.submit.textContent    = "Save changes";
-  refs.cancel?.classList.remove("hidden");
-  refs.form.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 
@@ -505,9 +500,6 @@ function resetForm() {
   state.editingId = null;
   refs.form.reset();
   refs.date.value = todayISO();
-  refs.formTitle.textContent = "Add file";
-  refs.submit.textContent    = "Add file";
-  refs.cancel?.classList.add("hidden");
 }
 
 
@@ -529,8 +521,8 @@ function bindBulkForm() {
     for (const line of lines) {
       let title = "", url = "";
       if (line.includes("|")) {
-        const [t, u] = line.split("|").map(x => x.trim());
-        title = t; url = u;
+        const parts = line.split("|").map(x => x.trim());
+        title = parts[0]; url = parts[1] || "";
       } else {
         url = line;
       }
@@ -550,7 +542,6 @@ function bindBulkForm() {
     }
 
     if (parsed.length === 0) return alert("No valid lines found.");
-
     if (!confirm(`Import ${parsed.length} file(s)?`)) return;
 
     try {
@@ -558,6 +549,7 @@ function bindBulkForm() {
         await addDoc("vaultFiles", p);
       }
       refs.bulkText.value = "";
+      closeAddModal();
       await loadAndRender();
       alert(`Imported ${parsed.length} file(s).`);
     } catch (err) {
@@ -577,7 +569,6 @@ function isDriveUrl(url) {
 }
 
 function extractDriveId(url) {
-  // /file/d/FILE_ID/ or ?id=FILE_ID
   let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
   if (m) return m[1];
   m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
@@ -600,7 +591,7 @@ function guessCategory(url, title = "") {
 
 
 /* --------------------------------------------------------------------------
-   12. TAGS / AUTOCONNECT LISTS
+   12. TAGS / AUTOCOMPLETE
    -------------------------------------------------------------------------- */
 function parseTags(raw) {
   return String(raw || "")
@@ -611,7 +602,6 @@ function parseTags(raw) {
 
 
 function refreshAutocompleteLists() {
-  // Tags
   if (refs.tagsList) {
     clear(refs.tagsList);
     const allTags = new Set();
@@ -623,7 +613,6 @@ function refreshAutocompleteLists() {
     }
   }
 
-  // Custom categories (in case user typed new ones)
   if (refs.categoryList) {
     clear(refs.categoryList);
     const allCats = new Set(CATEGORIES);
@@ -638,7 +627,7 @@ function refreshAutocompleteLists() {
 
 
 /* --------------------------------------------------------------------------
-   13. TOGGLE STAR
+   13. STAR
    -------------------------------------------------------------------------- */
 async function toggleStar(f) {
   try {
@@ -663,20 +652,17 @@ async function openInDrive(f) {
 async function copyLink(f) {
   try {
     await navigator.clipboard.writeText(f.url);
-    // Micro-feedback via title attribute is unreliable; skip for now
   } catch (err) {
     prompt("Copy this link:", f.url);
   }
 }
 
 async function markViewed(f) {
-  // Recently viewed (localStorage)
   const recent = state.recent.filter(r => r.id !== f.id);
   recent.unshift({ id: f.id, title: f.title, at: Date.now() });
   state.recent = recent.slice(0, RECENT_MAX);
   saveRecent();
 
-  // Increment viewCount in Firestore (fire-and-forget)
   try {
     await updateDoc("vaultFiles", f.id, {
       viewCount: (f.viewCount || 0) + 1,
@@ -687,7 +673,7 @@ async function markViewed(f) {
 
 
 /* --------------------------------------------------------------------------
-   15. RECENT (localStorage)
+   15. RECENT
    -------------------------------------------------------------------------- */
 function loadRecent() {
   try {
@@ -700,7 +686,7 @@ function loadRecent() {
 function saveRecent() {
   try {
     localStorage.setItem(RECENT_KEY, JSON.stringify(state.recent));
-  } catch (_) { /* ignore quota errors */ }
+  } catch (_) { /* ignore */ }
 }
 
 
@@ -777,10 +763,9 @@ function bindBulkActions() {
 
 
 /* --------------------------------------------------------------------------
-   17. CONTROLS (search, sort, view)
+   17. CONTROLS
    -------------------------------------------------------------------------- */
 function bindControls() {
-  // Search (debounced)
   let searchTimer = null;
   refs.search?.addEventListener("input", () => {
     clearTimeout(searchTimer);
@@ -820,7 +805,7 @@ function bindControls() {
 
 
 /* --------------------------------------------------------------------------
-   18. EXPORT AS JSON
+   18. EXPORT
    -------------------------------------------------------------------------- */
 function exportJSON() {
   const data = {
@@ -842,12 +827,9 @@ function exportJSON() {
    19. DETAIL MODAL
    -------------------------------------------------------------------------- */
 function bindModal() {
-  refs.modalClose?.addEventListener("click", closeModal);
+  refs.modalClose?.addEventListener("click", closeDetailModal);
   refs.modal?.addEventListener("click", (e) => {
-    if (e.target === refs.modal) closeModal();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeModal();
+    if (e.target === refs.modal) closeDetailModal();
   });
 }
 
@@ -902,7 +884,7 @@ function openDetail(f) {
       el("button", {
         class: "btn btn--primary",
         type: "button",
-        onclick: () => { openInDrive(f); closeModal(); }
+        onclick: () => { openInDrive(f); closeDetailModal(); }
       }, "Open in Drive"),
       el("button", {
         class: "btn btn--ghost",
@@ -912,12 +894,12 @@ function openDetail(f) {
       el("button", {
         class: "btn btn--ghost",
         type: "button",
-        onclick: () => { beginEdit(f); closeModal(); }
+        onclick: () => { beginEdit(f); closeDetailModal(); }
       }, "Edit"),
       el("button", {
         class: "btn btn--danger",
         type: "button",
-        onclick: () => { handleDelete(f.id, f.title); closeModal(); }
+        onclick: () => { handleDelete(f.id, f.title); closeDetailModal(); }
       }, "Delete")
     )
   );
@@ -927,12 +909,60 @@ function openDetail(f) {
 }
 
 
-function closeModal() {
+function closeDetailModal() {
   refs.modal?.classList.add("hidden");
 }
 
 
 /* --------------------------------------------------------------------------
-   20. HELPERS
+   20. ADD MODAL — open / close / tabs
    -------------------------------------------------------------------------- */
-// no-op placeholder for future helpers
+function bindAddModal() {
+  refs.fab?.addEventListener("click", () => openAddModal());
+  refs.addClose?.addEventListener("click", closeAddModal);
+
+  refs.addModal?.addEventListener("click", (e) => {
+    if (e.target === refs.addModal) closeAddModal();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (!refs.addModal?.classList.contains("hidden")) closeAddModal();
+      if (!refs.modal?.classList.contains("hidden")) closeDetailModal();
+    }
+  });
+
+  refs.modalTabs?.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.tab;
+      refs.modalTabs.forEach(t => t.classList.toggle("is-active", t === tab));
+      refs.modalPanels.forEach(p => {
+        p.classList.toggle("hidden", p.dataset.panel !== target);
+      });
+    });
+  });
+}
+
+
+function openAddModal(editingFile = null) {
+  if (editingFile) {
+    beginEditFill(editingFile);
+    if (refs.addTitle) refs.addTitle.textContent = "Edit file";
+    if (refs.submit)   refs.submit.textContent   = "Save changes";
+  } else {
+    resetForm();
+    if (refs.addTitle) refs.addTitle.textContent = "Add file";
+    if (refs.submit)   refs.submit.textContent   = "Add file";
+  }
+
+  refs.modalTabs?.forEach(t => t.classList.toggle("is-active", t.dataset.tab === "single"));
+  refs.modalPanels?.forEach(p => p.classList.toggle("hidden", p.dataset.panel !== "single"));
+
+  refs.addModal?.classList.remove("hidden");
+}
+
+
+function closeAddModal() {
+  refs.addModal?.classList.add("hidden");
+  state.editingId = null;
+}
