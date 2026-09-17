@@ -147,7 +147,7 @@ function setAuthGate(active) {
           </button>
         </div>
       `;
-      main.appendChild(gate);
+      main.prepend(gate);
       gate.querySelector("#auth-gate-btn")
           .addEventListener("click", handleSignIn);
     }
