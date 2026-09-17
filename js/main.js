@@ -62,7 +62,8 @@ async function loadPageModule(page) {
 }
 
     case "vault":
-      // await import("./modules/vault.js");
+const { initVault } = await import("./modules/vault.js");
+      await initVault();
       break;
 
     default:
