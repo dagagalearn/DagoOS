@@ -13,8 +13,7 @@
    ========================================================================== */
 
 import { listDocs, addDoc, updateDoc, deleteDoc } from "../core/firestore.js";
-import { el, clear, toNumber } from "../core/utils.js";
-
+import { el, clear, toNumber, formatDate } from "../core/utils.js";
 
 /* --------------------------------------------------------------------------
    1. STATE
@@ -22,10 +21,11 @@ import { el, clear, toNumber } from "../core/utils.js";
 const state = {
   courses: [],
   skills: [],
+  exams: [],
   editingCourseId: null,
-  editingSkillId:  null
+  editingSkillId:  null,
+  editingExamId:   null
 };
-
 let refs = {};
 
 
@@ -36,12 +36,13 @@ export async function initAcademy() {
   cacheRefs();
   bindCourseForm();
   bindSkillForm();
+  bindExamForm();
   await loadAll();
   renderCourses();
   renderSkills();
+  renderExams();
   renderGPA();
 }
-
 
 function cacheRefs() {
   refs = {
@@ -75,6 +76,18 @@ function cacheRefs() {
     skillCancel:    document.getElementById("skill-cancel"),
     skillList:      document.getElementById("skill-list"),
     skillEmpty:     document.getElementById("skill-empty")
+      // Exams
+    examForm:       document.getElementById("exam-form"),
+    examFormTitle:  document.getElementById("exam-form-title"),
+    examName:       document.getElementById("exam-name"),
+    examScore:      document.getElementById("exam-score"),
+    examTotal:      document.getElementById("exam-total"),
+    examDate:       document.getElementById("exam-date"),
+    examDescription:document.getElementById("exam-description"),
+    examSubmit:     document.getElementById("exam-submit"),
+    examCancel:     document.getElementById("exam-cancel"),
+    examList:       document.getElementById("exam-list"),
+    examEmpty:      document.getElementById("exam-empty")
   };
 }
 
@@ -102,6 +115,26 @@ async function loadAll() {
     console.error("[Academy] Skills load failed:", err);
     state.skills = [];
   }
+     try {
+    state.skills = await listDocs("skills", {
+      orderByField: "name",
+      orderDir: "asc"
+    });
+  } catch (err) {
+    console.error("[Academy] Skills load failed:", err);
+    state.skills = [];
+  }
+
+  try {
+    state.exams = await listDocs("exams", {
+      orderByField: "date",
+      orderDir: "desc"
+    });
+  } catch (err) {
+    console.error("[Academy] Exams load failed:", err);
+    state.exams = [];
+  }
+}
 }
 
 
@@ -386,5 +419,146 @@ async function handleDeleteSkill(id, name) {
     renderSkills();
   } catch (err) {
     console.error("[Academy] Skill delete failed:", err);
+  }
+   
+}
+
+/* ==========================================================================
+   EXAMS — individual exams with scores
+   --------------------------------------------------------------------------
+   Firestore collection: `exams`
+   Doc shape: { name, score, total, description, date, uid, timestamps }
+
+   Percentage is computed on the fly (not stored) so edits always stay
+   consistent.
+   ========================================================================== */
+
+function renderExams() {
+  if (!refs.examList) return;
+  clear(refs.examList);
+
+  if (state.exams.length === 0) {
+    refs.examEmpty?.classList.remove("hidden");
+    return;
+  }
+  refs.examEmpty?.classList.add("hidden");
+
+  for (const ex of state.exams) {
+    refs.examList.appendChild(buildExamRow(ex));
+  }
+}
+
+
+function buildExamRow(ex) {
+  const score = toNumber(ex.score);
+  const total = toNumber(ex.total);
+  const pct   = total > 0 ? (score / total) * 100 : 0;
+  const pctText = total > 0 ? `${pct.toFixed(1)}%` : "—";
+
+  // Color the percentage based on performance
+  let pctClass = "exam-row__pct--ok";
+  if (pct >= 80)      pctClass = "exam-row__pct--great";
+  else if (pct >= 60) pctClass = "exam-row__pct--ok";
+  else                pctClass = "exam-row__pct--low";
+
+  const meta = [
+    total > 0 ? `${score} / ${total}` : "",
+    ex.date ? formatDate(ex.date) : ""
+  ].filter(Boolean).join(" · ");
+
+  return el("div", { class: "exam-row" },
+    el("div", { class: "exam-row__main" },
+      el("div", { class: "exam-row__name", text: ex.name }),
+      el("div", { class: "exam-row__meta", text: meta }),
+      ex.description
+        ? el("div", { class: "exam-row__desc", text: ex.description })
+        : null
+    ),
+    el("div", { class: `exam-row__pct ${pctClass}`, text: pctText }),
+    el("button", {
+      class: "prop-row__btn",
+      type: "button",
+      onclick: () => beginEditExam(ex)
+    }, "Edit"),
+    el("button", {
+      class: "prop-row__btn prop-row__btn--danger",
+      type: "button",
+      onclick: () => handleDeleteExam(ex.id, ex.name)
+    }, "Delete")
+  );
+}
+
+
+function bindExamForm() {
+  if (!refs.examForm) return;
+
+  refs.examForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const total = toNumber(refs.examTotal.value, 0);
+    if (total <= 0) return alert("Total must be greater than zero.");
+
+    const data = {
+      name:        (refs.examName.value || "").trim(),
+      score:       toNumber(refs.examScore.value, 0),
+      total:       total,
+      description: (refs.examDescription.value || "").trim(),
+      date:        refs.examDate.value || ""
+    };
+
+    if (!data.name) return alert("Exam name is required.");
+
+    try {
+      if (state.editingExamId) {
+        await updateDoc("exams", state.editingExamId, data);
+      } else {
+        await addDoc("exams", data);
+      }
+      resetExamForm();
+      await loadAll();
+      renderExams();
+    } catch (err) {
+      console.error("[Academy] Exam save failed:", err);
+      alert("Could not save exam. Check console.");
+    }
+  });
+
+  refs.examCancel?.addEventListener("click", resetExamForm);
+}
+
+
+function beginEditExam(ex) {
+  state.editingExamId = ex.id;
+  refs.examName.value        = ex.name || "";
+  refs.examScore.value       = ex.score ?? "";
+  refs.examTotal.value       = ex.total ?? "";
+  refs.examDescription.value = ex.description || "";
+  refs.examDate.value        = ex.date || "";
+
+  refs.examFormTitle.textContent = "Edit exam";
+  refs.examSubmit.textContent    = "Save changes";
+  refs.examCancel?.classList.remove("hidden");
+  refs.examForm.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+
+function resetExamForm() {
+  state.editingExamId = null;
+  refs.examForm.reset();
+  refs.examFormTitle.textContent = "Add exam";
+  refs.examSubmit.textContent    = "Add exam";
+  refs.examCancel?.classList.add("hidden");
+}
+
+
+async function handleDeleteExam(id, name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  try {
+    await deleteDoc("exams", id);
+    if (state.editingExamId === id) resetExamForm();
+    await loadAll();
+    renderExams();
+  } catch (err) {
+    console.error("[Academy] Exam delete failed:", err);
   }
 }
