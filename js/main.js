@@ -94,21 +94,67 @@ function boot() {
   highlightActiveNav();
 
   const page = document.body.dataset.page;
-  loadPageModule(page);
 
   // Watch auth. Callback fires immediately (with user or null),
   // then again on every sign-in / sign-out.
-  onAuthChange(user => {
+  onAuthChange(async (user) => {
     if (user) {
-      console.log("[DagoOS] Signed in as:", user.displayName, `(uid: ${user.uid})`);
+      console.log(`[DagoOS] Signed in as: ${user.displayName}  ·  UID: ${user.uid}`);
+      document.body.dataset.auth = "in";
+      setAuthGate(false);
+      await loadPageModule(page);      // load module ONLY when signed in
     } else {
       console.log("[DagoOS] Signed out");
+      document.body.dataset.auth = "out";
+      setAuthGate(true);
     }
+
     renderAuthArea(user, {
       onSignIn:  handleSignIn,
       onSignOut: handleSignOut
     });
   });
+}
+
+
+/* --------------------------------------------------------------------------
+   AUTH GATE — show a "please sign in" panel when logged out
+   --------------------------------------------------------------------------
+   The gate is injected into .main on demand. When active, it covers the
+   content area. When inactive, it's removed and page modules render freely.
+   -------------------------------------------------------------------------- */
+function setAuthGate(active) {
+  const main = document.querySelector(".main");
+  if (!main) return;
+
+  let gate = document.getElementById("auth-gate");
+
+  if (active) {
+    if (!gate) {
+      gate = document.createElement("div");
+      gate.id = "auth-gate";
+      gate.className = "auth-gate";
+      gate.innerHTML = `
+        <div class="auth-gate__inner">
+          <div class="auth-gate__icon">🔒</div>
+          <h2 class="auth-gate__title">Sign in to DagoOS</h2>
+          <p class="auth-gate__text">
+            This is a private dashboard. Please sign in with your authorized
+            Google account to continue.
+          </p>
+          <button id="auth-gate-btn" class="btn btn--primary" type="button">
+            Sign in with Google
+          </button>
+        </div>
+      `;
+      main.appendChild(gate);
+      gate.querySelector("#auth-gate-btn")
+          .addEventListener("click", handleSignIn);
+    }
+    gate.classList.remove("hidden");
+  } else if (gate) {
+    gate.remove();
+  }
 }
 
 // DOM might not be ready if the module loads before parsing finishes.
