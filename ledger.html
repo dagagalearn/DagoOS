@@ -161,7 +161,51 @@
           No transactions yet. Add your first one above.
         </p>
       </section>
+      <!-- Properties / possessions -->
+      <section class="card">
+        <h2 class="card__title">Properties & possessions</h2>
+        <p class="card__subtitle">
+          Anything you own and want to keep track of — shoes, socks, watches…
+        </p>
 
+        <form id="prop-form" class="form-grid">
+
+          <label class="field">
+            <span class="field__label">Name</span>
+            <input id="prop-name" class="field__input" type="text"
+                   placeholder="Running shoes" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Category</span>
+            <input id="prop-category" class="field__input" type="text"
+                   list="prop-category-list"
+                   placeholder="Shoes, Socks, Watches…" />
+            <datalist id="prop-category-list"></datalist>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Quantity</span>
+            <input id="prop-quantity" class="field__input" type="number"
+                   min="0" step="1" value="1" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Notes (optional)</span>
+            <input id="prop-notes" class="field__input" type="text"
+                   placeholder="Any details" />
+          </label>
+
+          <div class="field field--wide field--actions">
+            <button class="btn btn--primary" type="submit">Add item</button>
+          </div>
+        </form>
+
+        <div id="prop-list" class="prop-list"></div>
+        <p id="prop-empty" class="empty-state hidden">
+          No items yet. Add your first one above.
+        </p>
+      </section>
     </main>
 
   </div>
