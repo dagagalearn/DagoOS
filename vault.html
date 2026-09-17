@@ -82,7 +82,7 @@
         <p class="page-header__subtitle">Your files, indexed. Drive holds them — this points to them.</p>
       </div>
 
-      <!-- Toolbar -->
+      <!-- Toolbar: search + sort + view + export -->
       <section class="vault-toolbar">
         <div class="vault-toolbar__search">
           <input id="vault-search" class="field__input" type="search"
@@ -109,7 +109,7 @@
         </button>
       </section>
 
-      <!-- Bulk actions bar (hidden by default) -->
+      <!-- Bulk actions bar (hidden unless files selected) -->
       <div id="vault-bulk-bar" class="vault-bulk-bar hidden">
         <span id="vault-bulk-count" class="vault-bulk-bar__count">0 selected</span>
         <select id="vault-bulk-category" class="field__input vault-bulk-bar__select">
@@ -120,21 +120,41 @@
         <button id="vault-bulk-clear" class="btn btn--ghost btn--sm" type="button">Clear</button>
       </div>
 
-      <!-- Grid / list -->
-      <section class="card">
+      <!-- Grid -->
+      <section class="card vault-content-card">
         <div id="vault-grid" class="vault-grid"></div>
         <p id="vault-empty" class="empty-state hidden">
-          No files yet. Add your first one below — or paste a link into the bulk importer.
+          No files yet. Tap the <strong>+</strong> button to add your first one.
         </p>
       </section>
 
-      <!-- Add file form -->
-      <section class="card">
-        <h2 class="card__title" id="vault-form-title">Add file</h2>
-        <p class="card__subtitle">
-          Paste a Google Drive share link. Title, category, and tags help you find it later.
-        </p>
+    </main>
 
+  </div>
+
+  <!-- Floating Action Button -->
+  <button id="vault-fab" class="fab" type="button" title="Add file" aria-label="Add file">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </button>
+
+  <!-- Add/Edit Modal -->
+  <div id="vault-add-modal" class="modal-backdrop hidden">
+    <div class="modal modal--wide">
+      <button id="vault-add-close" class="modal__close" type="button" aria-label="Close">×</button>
+
+      <h2 class="modal__title" id="vault-add-title">Add file</h2>
+
+      <!-- Tabs -->
+      <div class="modal__tabs">
+        <button class="modal__tab is-active" data-tab="single" type="button">Single</button>
+        <button class="modal__tab" data-tab="bulk" type="button">Bulk import</button>
+      </div>
+
+      <!-- Tab: Single -->
+      <div class="modal__panel" data-panel="single">
         <form id="vault-form" class="form-grid">
 
           <label class="field field--wide">
@@ -182,35 +202,34 @@
 
           <div class="field field--wide field--actions entry-form-actions">
             <button id="vault-submit" class="btn btn--primary" type="submit">Add file</button>
-            <button id="vault-cancel" class="btn btn--ghost hidden" type="button">Cancel</button>
+            <button id="vault-cancel" class="btn btn--ghost" type="button">Cancel</button>
           </div>
 
         </form>
-      </section>
+      </div>
 
-      <!-- Bulk import -->
-      <section class="card">
-        <h2 class="card__title">Bulk import</h2>
-        <p class="card__subtitle">
-          One file per line, format: <code>title | url</code>. If you skip the title,
-          it becomes "Untitled". Category is guessed from the title/URL.
+      <!-- Tab: Bulk -->
+      <div class="modal__panel hidden" data-panel="bulk">
+        <p class="modal__hint">
+          One file per line, format: <code>title | url</code>.
+          If you skip the title, it becomes "Untitled". Category is guessed.
         </p>
 
         <form id="vault-bulk-form">
           <textarea id="vault-bulk-text" class="field__input field__input--textarea"
-                    rows="6"
+                    rows="10"
                     placeholder="Passport scan | https://drive.google.com/file/d/abc123/view
 Tax 2024 | https://drive.google.com/file/d/def456/view
 https://drive.google.com/file/d/ghi789/view"></textarea>
 
-          <div class="entry-form-actions" style="margin-top: var(--space-3);">
+          <div class="entry-form-actions" style="margin-top: var(--space-4);">
             <button class="btn btn--primary" type="submit">Import all</button>
+            <button id="vault-bulk-cancel" class="btn btn--ghost" type="button">Cancel</button>
           </div>
         </form>
-      </section>
+      </div>
 
-    </main>
-
+    </div>
   </div>
 
   <!-- Detail modal -->
