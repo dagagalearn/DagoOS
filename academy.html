@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dago Academy · DagoOS</title>
+
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%236366f1'/></svg>" />
+</head>
+
+<body data-page="academy" data-auth="out">
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <span class="sidebar__brand-dot"></span>
+        <span>DagoOS</span>
+      </div>
+
+      <nav class="sidebar__section">
+        <div class="sidebar__label">Overview</div>
+        <a class="nav-link" href="index.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>Command Center</span>
+        </a>
+      </nav>
+
+      <nav class="sidebar__section">
+        <div class="sidebar__label">Modules</div>
+        <a class="nav-link" href="ledger.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="6" width="20" height="14" rx="2"/>
+            <path d="M2 10h20"/>
+          </svg>
+          <span>Dago Ledger</span>
+        </a>
+        <a class="nav-link" href="journal.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4v16a2 2 0 0 0 2 2h14V4H6a2 2 0 0 0-2 2z"/>
+            <path d="M8 8h8M8 12h8M8 16h5"/>
+          </svg>
+          <span>Dago Journal</span>
+        </a>
+        <a class="nav-link" href="academy.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 9l10-5 10 5-10 5z"/>
+            <path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/>
+          </svg>
+          <span>Dago Academy</span>
+        </a>
+        <a class="nav-link" href="vault.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          </svg>
+          <span>Dago Vault</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="header">
+      <div class="header__title">Dago Academy</div>
+      <div class="header__actions">
+        <div id="auth-area" class="auth-area"></div>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <div class="page-header">
+        <h1 class="page-header__title">Dago Academy</h1>
+        <p class="page-header__subtitle">Courses, grades, and skills.</p>
+      </div>
+
+      <!-- Summary cards -->
+      <section class="ledger-summary">
+        <div class="stat-card">
+          <div class="stat-card__label">Weighted GPA</div>
+          <div class="stat-card__value" id="gpa-value">0.00</div>
+        </div>
+        <div class="stat-card stat-card--income">
+          <div class="stat-card__label">Total credits</div>
+          <div class="stat-card__value" id="credits-total">0</div>
+        </div>
+        <div class="stat-card stat-card--expense">
+          <div class="stat-card__label">Completed courses</div>
+          <div class="stat-card__value" id="courses-completed">0</div>
+        </div>
+      </section>
+
+      <!-- Courses list -->
+      <section class="card">
+        <h2 class="card__title">Courses</h2>
+        <div id="course-list" class="course-list"></div>
+        <p id="course-empty" class="empty-state hidden">
+          No courses yet. Add your first one below.
+        </p>
+      </section>
+
+      <!-- Course form -->
+      <section class="card">
+        <h2 class="card__title" id="course-form-title">Add course</h2>
+
+        <form id="course-form" class="form-grid">
+
+          <label class="field field--wide">
+            <span class="field__label">Course name</span>
+            <input id="course-name" class="field__input" type="text"
+                   placeholder="Linear Algebra" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Institution</span>
+            <input id="course-institution" class="field__input" type="text"
+                   placeholder="University / school" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Course code</span>
+            <input id="course-code" class="field__input" type="text"
+                   placeholder="WI1401" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Credits (EC)</span>
+            <input id="course-credits" class="field__input" type="number"
+                   min="0" step="0.5" value="6" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Grade (blank if in progress)</span>
+            <input id="course-grade" class="field__input" type="number"
+                   min="0" max="10" step="0.1" placeholder="8.5" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Status</span>
+            <select id="course-status" class="field__input">
+              <option value="completed">Completed</option>
+              <option value="in-progress">In progress</option>
+              <option value="dropped">Dropped</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Semester</span>
+            <input id="course-semester" class="field__input" type="text"
+                   placeholder="2024-Q3" />
+          </label>
+
+          <label class="field field--wide">
+            <span class="field__label">Notes (optional)</span>
+            <input id="course-notes" class="field__input" type="text"
+                   placeholder="Anything worth remembering" />
+          </label>
+
+          <div class="field field--wide field--actions entry-form-actions">
+            <button id="course-submit" class="btn btn--primary" type="submit">
+              Add course
+            </button>
+            <button id="course-cancel" class="btn btn--ghost hidden" type="button">
+              Cancel
+            </button>
+          </div>
+
+        </form>
+      </section>
+
+      <!-- Skills list -->
+      <section class="card">
+        <h2 class="card__title">Skills</h2>
+        <div id="skill-list" class="skill-list"></div>
+        <p id="skill-empty" class="empty-state hidden">
+          No skills yet. Add your first one below.
+        </p>
+      </section>
+
+      <!-- Skill form -->
+      <section class="card">
+        <h2 class="card__title" id="skill-form-title">Add skill</h2>
+
+        <form id="skill-form" class="form-grid">
+
+          <label class="field">
+            <span class="field__label">Skill name</span>
+            <input id="skill-name" class="field__input" type="text"
+                   placeholder="JavaScript" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Level</span>
+            <select id="skill-level" class="field__input">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+              <option value="expert">Expert</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Progress (0–100)</span>
+            <input id="skill-progress" class="field__input" type="number"
+                   min="0" max="100" step="1" value="0" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Notes (optional)</span>
+            <input id="skill-notes" class="field__input" type="text"
+                   placeholder="Anything worth remembering" />
+          </label>
+
+          <div class="field field--wide field--actions entry-form-actions">
+            <button id="skill-submit" class="btn btn--primary" type="submit">
+              Add skill
+            </button>
+            <button id="skill-cancel" class="btn btn--ghost hidden" type="button">
+              Cancel
+            </button>
+          </div>
+
+        </form>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>
