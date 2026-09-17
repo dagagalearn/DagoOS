@@ -7,7 +7,7 @@
      {
        type: "income" | "expense",
        amount: number,
-       currency: "EUR",
+       currency: "ETB",
        category: string,
        description: string,
        date: "YYYY-MM-DD",
@@ -15,8 +15,7 @@
      }
    ========================================================================== */
 
-import { listDocs, addDoc, deleteDoc } from "../core/firestore.js";
-import { formatCurrency, formatDate, todayISO, el, clear, toNumber }
+import { listDocs, addDoc, updateDoc as fsUpdateDoc, deleteDoc } from "../core/firestore.js";import { formatCurrency, formatDate, todayISO, el, clear, toNumber }
   from "../core/utils.js";
 
 
@@ -43,6 +42,7 @@ export async function initLedger() {
   bindForm();
   bindFilters();
   await loadAndRender();
+  await initProperties();
 }
 
 
@@ -173,7 +173,7 @@ function bindForm() {
     const data = {
       type:        refs.type.value,
       amount:      toNumber(refs.amount.value),
-      currency:    "EUR",
+      currency:    "ETB",
       category:    (refs.category.value || "").trim(),
       description: (refs.description.value || "").trim(),
       date:        refs.date.value || todayISO()
@@ -224,4 +224,170 @@ function bindFilters() {
       renderList();
     });
   });
+}
+
+/* ==========================================================================
+   PROPERTIES — possessions tracker (shoes, socks, anything countable)
+   --------------------------------------------------------------------------
+   Firestore collection: `properties`
+   Doc shape: { name, category, quantity, notes, uid, createdAt, updatedAt }
+   Categories are user-created — nothing is hardcoded.
+   ========================================================================== */
+
+import { updateDoc as fsUpdateDoc } from "../core/firestore.js";
+// ^ this import goes at the TOP of the file with the other imports,
+//   not literally here. See the note below.
+
+const propertyState = {
+  items: []
+};
+
+let propertyRefs = {};
+
+async function initProperties() {
+  cachePropertyRefs();
+  bindPropertyForm();
+  await loadProperties();
+}
+
+function cachePropertyRefs() {
+  propertyRefs = {
+    form:      document.getElementById("prop-form"),
+    name:      document.getElementById("prop-name"),
+    category:  document.getElementById("prop-category"),
+    quantity:  document.getElementById("prop-quantity"),
+    notes:     document.getElementById("prop-notes"),
+    list:      document.getElementById("prop-list"),
+    empty:     document.getElementById("prop-empty"),
+    datalist:  document.getElementById("prop-category-list")
+  };
+}
+
+async function loadProperties() {
+  try {
+    propertyState.items = await listDocs("properties", {
+      orderByField: "category",
+      orderDir: "asc"
+    });
+  } catch (err) {
+    console.error("[Properties] Load failed:", err);
+    propertyState.items = [];
+  }
+  renderProperties();
+  renderCategorySuggestions();
+}
+
+function renderCategorySuggestions() {
+  if (!propertyRefs.datalist) return;
+  clear(propertyRefs.datalist);
+
+  const categories = [...new Set(propertyState.items.map(p => p.category))]
+    .filter(Boolean)
+    .sort();
+
+  for (const cat of categories) {
+    propertyRefs.datalist.appendChild(
+      el("option", { value: cat })
+    );
+  }
+}
+
+function renderProperties() {
+  if (!propertyRefs.list) return;
+  clear(propertyRefs.list);
+
+  if (propertyState.items.length === 0) {
+    propertyRefs.empty?.classList.remove("hidden");
+    return;
+  }
+  propertyRefs.empty?.classList.add("hidden");
+
+  // Group by category
+  const grouped = {};
+  for (const p of propertyState.items) {
+    const cat = p.category || "Uncategorized";
+    (grouped[cat] ||= []).push(p);
+  }
+
+  for (const [cat, items] of Object.entries(grouped)) {
+    propertyRefs.list.appendChild(
+      el("div", { class: "prop-group" },
+        el("div", { class: "prop-group__title", text: cat }),
+        ...items.map(buildPropertyRow)
+      )
+    );
+  }
+}
+
+function buildPropertyRow(p) {
+  return el("div", { class: "prop-row" },
+    el("div", { class: "prop-row__main" },
+      el("div", { class: "prop-row__name", text: p.name }),
+      p.notes ? el("div", { class: "prop-row__notes", text: p.notes }) : null
+    ),
+    el("div", { class: "prop-row__qty", text: `× ${p.quantity}` }),
+    el("button", {
+      class: "prop-row__btn",
+      type: "button",
+      title: "Edit",
+      onclick: () => handleEditProperty(p)
+    }, "Edit"),
+    el("button", {
+      class: "prop-row__btn prop-row__btn--danger",
+      type: "button",
+      title: "Delete",
+      onclick: () => handleDeleteProperty(p.id, p.name)
+    }, "Delete")
+  );
+}
+
+function bindPropertyForm() {
+  if (!propertyRefs.form) return;
+
+  propertyRefs.form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = {
+      name:     (propertyRefs.name.value || "").trim(),
+      category: (propertyRefs.category.value || "").trim() || "Uncategorized",
+      quantity: toNumber(propertyRefs.quantity.value, 0),
+      notes:    (propertyRefs.notes.value || "").trim()
+    };
+
+    if (!data.name) return alert("Name is required.");
+    if (data.quantity < 0) return alert("Quantity can't be negative.");
+
+    try {
+      await addDoc("properties", data);
+      propertyRefs.form.reset();
+      await loadProperties();
+    } catch (err) {
+      console.error("[Properties] Add failed:", err);
+      alert("Could not save. Check console.");
+    }
+  });
+}
+
+async function handleEditProperty(p) {
+  const newQty = prompt(`New quantity for "${p.name}":`, p.quantity);
+  if (newQty === null) return;
+  const qty = toNumber(newQty, NaN);
+  if (!Number.isFinite(qty) || qty < 0) return alert("Invalid number.");
+
+  try {
+    await fsUpdateDoc("properties", p.id, { quantity: qty });
+    await loadProperties();
+  } catch (err) {
+    console.error("[Properties] Update failed:", err);
+  }
+}
+
+async function handleDeleteProperty(id, name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  try {
+    await deleteDoc("properties", id);
+    await loadProperties();
+  } catch (err) {
+    console.error("[Properties] Delete failed:", err);
+  }
 }
