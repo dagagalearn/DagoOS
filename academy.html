@@ -185,6 +185,62 @@
         </p>
       </section>
 
+            <!-- Exams list -->
+      <section class="card">
+        <h2 class="card__title">Exams</h2>
+        <div id="exam-list" class="exam-list"></div>
+        <p id="exam-empty" class="empty-state hidden">
+          No exams yet. Add your first one below.
+        </p>
+      </section>
+
+      <!-- Exam form -->
+      <section class="card">
+        <h2 class="card__title" id="exam-form-title">Add exam</h2>
+
+        <form id="exam-form" class="form-grid">
+
+          <label class="field field--wide">
+            <span class="field__label">Exam name</span>
+            <input id="exam-name" class="field__input" type="text"
+                   placeholder="Linear Algebra Midterm" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Score</span>
+            <input id="exam-score" class="field__input" type="number"
+                   min="0" step="0.1" placeholder="42" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Total</span>
+            <input id="exam-total" class="field__input" type="number"
+                   min="0.1" step="0.1" placeholder="50" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Date (optional)</span>
+            <input id="exam-date" class="field__input" type="date" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Description (optional)</span>
+            <input id="exam-description" class="field__input" type="text"
+                   placeholder="Covers chapters 1–4" />
+          </label>
+
+          <div class="field field--wide field--actions entry-form-actions">
+            <button id="exam-submit" class="btn btn--primary" type="submit">
+              Add exam
+            </button>
+            <button id="exam-cancel" class="btn btn--ghost hidden" type="button">
+              Cancel
+            </button>
+          </div>
+
+        </form>
+      </section>
+      
       <!-- Skill form -->
       <section class="card">
         <h2 class="card__title" id="skill-form-title">Add skill</h2>
