@@ -15,8 +15,8 @@
      }
    ========================================================================== */
 
-import { listDocs, addDoc, updateDoc as fsUpdateDoc, deleteDoc } from "../core/firestore.js";import { formatCurrency, formatDate, todayISO, el, clear, toNumber }
-  from "../core/utils.js";
+import { listDocs, addDoc, updateDoc as fsUpdateDoc, deleteDoc } from "../core/firestore.js";
+import { formatCurrency, formatDate, todayISO, el, clear, toNumber } from "../core/utils.js";
 
 
 /* --------------------------------------------------------------------------
