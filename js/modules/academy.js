@@ -6,6 +6,7 @@
    Firestore collections:
      courses  → name, institution, code, credits, grade, status, semester, notes
      skills   → name, level, progress, notes
+     exams    → name, score, total, description, date
 
    Uses:
      listDocs, addDoc, updateDoc, deleteDoc  → firestore.js
@@ -14,6 +15,7 @@
 
 import { listDocs, addDoc, updateDoc, deleteDoc } from "../core/firestore.js";
 import { el, clear, toNumber, formatDate } from "../core/utils.js";
+
 
 /* --------------------------------------------------------------------------
    1. STATE
@@ -26,6 +28,7 @@ const state = {
   editingSkillId:  null,
   editingExamId:   null
 };
+
 let refs = {};
 
 
@@ -44,25 +47,26 @@ export async function initAcademy() {
   renderGPA();
 }
 
+
 function cacheRefs() {
   refs = {
     // Courses
-    courseForm:     document.getElementById("course-form"),
-    courseFormTitle:document.getElementById("course-form-title"),
-    courseName:     document.getElementById("course-name"),
-    courseInstitution: document.getElementById("course-institution"),
-    courseCode:     document.getElementById("course-code"),
-    courseCredits:  document.getElementById("course-credits"),
-    courseGrade:    document.getElementById("course-grade"),
-    courseStatus:   document.getElementById("course-status"),
-    courseSemester: document.getElementById("course-semester"),
-    courseNotes:    document.getElementById("course-notes"),
-    courseSubmit:   document.getElementById("course-submit"),
-    courseCancel:   document.getElementById("course-cancel"),
-    courseList:     document.getElementById("course-list"),
-    courseEmpty:    document.getElementById("course-empty"),
-    gpaValue:       document.getElementById("gpa-value"),
-    creditsTotal:   document.getElementById("credits-total"),
+    courseForm:       document.getElementById("course-form"),
+    courseFormTitle:  document.getElementById("course-form-title"),
+    courseName:       document.getElementById("course-name"),
+    courseInstitution:document.getElementById("course-institution"),
+    courseCode:       document.getElementById("course-code"),
+    courseCredits:    document.getElementById("course-credits"),
+    courseGrade:      document.getElementById("course-grade"),
+    courseStatus:     document.getElementById("course-status"),
+    courseSemester:   document.getElementById("course-semester"),
+    courseNotes:      document.getElementById("course-notes"),
+    courseSubmit:     document.getElementById("course-submit"),
+    courseCancel:     document.getElementById("course-cancel"),
+    courseList:       document.getElementById("course-list"),
+    courseEmpty:      document.getElementById("course-empty"),
+    gpaValue:         document.getElementById("gpa-value"),
+    creditsTotal:     document.getElementById("credits-total"),
     coursesCompleted: document.getElementById("courses-completed"),
 
     // Skills
@@ -75,19 +79,20 @@ function cacheRefs() {
     skillSubmit:    document.getElementById("skill-submit"),
     skillCancel:    document.getElementById("skill-cancel"),
     skillList:      document.getElementById("skill-list"),
-    skillEmpty:     document.getElementById("skill-empty")
-      // Exams
-    examForm:       document.getElementById("exam-form"),
-    examFormTitle:  document.getElementById("exam-form-title"),
-    examName:       document.getElementById("exam-name"),
-    examScore:      document.getElementById("exam-score"),
-    examTotal:      document.getElementById("exam-total"),
-    examDate:       document.getElementById("exam-date"),
-    examDescription:document.getElementById("exam-description"),
-    examSubmit:     document.getElementById("exam-submit"),
-    examCancel:     document.getElementById("exam-cancel"),
-    examList:       document.getElementById("exam-list"),
-    examEmpty:      document.getElementById("exam-empty")
+    skillEmpty:     document.getElementById("skill-empty"),
+
+    // Exams
+    examForm:        document.getElementById("exam-form"),
+    examFormTitle:   document.getElementById("exam-form-title"),
+    examName:        document.getElementById("exam-name"),
+    examScore:       document.getElementById("exam-score"),
+    examTotal:       document.getElementById("exam-total"),
+    examDate:        document.getElementById("exam-date"),
+    examDescription: document.getElementById("exam-description"),
+    examSubmit:      document.getElementById("exam-submit"),
+    examCancel:      document.getElementById("exam-cancel"),
+    examList:        document.getElementById("exam-list"),
+    examEmpty:       document.getElementById("exam-empty")
   };
 }
 
@@ -115,15 +120,6 @@ async function loadAll() {
     console.error("[Academy] Skills load failed:", err);
     state.skills = [];
   }
-     try {
-    state.skills = await listDocs("skills", {
-      orderByField: "name",
-      orderDir: "asc"
-    });
-  } catch (err) {
-    console.error("[Academy] Skills load failed:", err);
-    state.skills = [];
-  }
 
   try {
     state.exams = await listDocs("exams", {
@@ -134,7 +130,6 @@ async function loadAll() {
     console.error("[Academy] Exams load failed:", err);
     state.exams = [];
   }
-}
 }
 
 
@@ -420,8 +415,8 @@ async function handleDeleteSkill(id, name) {
   } catch (err) {
     console.error("[Academy] Skill delete failed:", err);
   }
-   
 }
+
 
 /* ==========================================================================
    EXAMS — individual exams with scores
