@@ -234,9 +234,7 @@ function bindFilters() {
    Categories are user-created — nothing is hardcoded.
    ========================================================================== */
 
-import { updateDoc as fsUpdateDoc } from "../core/firestore.js";
-// ^ this import goes at the TOP of the file with the other imports,
-//   not literally here. See the note below.
+
 
 const propertyState = {
   items: []
