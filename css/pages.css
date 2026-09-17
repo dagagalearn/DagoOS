@@ -342,6 +342,197 @@ body[data-auth] .auth-gate {
 .card .form-grid {
   margin-top: var(--space-2);
 }
+
+/* --------------------------------------------------------------------------
+   JOURNAL
+   -------------------------------------------------------------------------- */
+
+.entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.entry-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.entry-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.entry-card__title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.entry-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.entry-card__body {
+  color: var(--color-text);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  margin-bottom: var(--space-3);
+}
+
+.entry-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.entry-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* --- Mood badge --- */
+.mood {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.mood--bad   { background: var(--color-danger-soft);  color: var(--color-danger); }
+.mood--ok    { background: var(--color-warning-soft); color: var(--color-warning); }
+.mood--good  { background: var(--color-info-soft);    color: var(--color-info); }
+.mood--great { background: var(--color-success-soft); color: var(--color-success); }
+
+/* --- Tag chips --- */
+.tag-chip {
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: var(--weight-medium);
+}
+
+/* --- Textarea variant --- */
+.field__input--textarea {
+  resize: vertical;
+  min-height: 160px;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+/* --- Live preview panel --- */
+.entry-preview-wrap {
+  margin-top: var(--space-2);
+}
+
+.entry-preview {
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  min-height: 80px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.entry-preview .preview-empty {
+  color: var(--color-text-faint);
+  font-style: italic;
+  margin: 0;
+}
+
+.entry-form-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* --- Markdown rendering styles --- */
+.markdown > *:first-child { margin-top: 0; }
+.markdown > *:last-child  { margin-bottom: 0; }
+
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.markdown h1 { font-size: var(--text-xl); }
+.markdown h2 { font-size: var(--text-lg); }
+.markdown h3 { font-size: var(--text-md); }
+
+.markdown p {
+  margin-bottom: var(--space-3);
+}
+
+.markdown ul,
+.markdown ol {
+  margin: var(--space-2) 0 var(--space-3) var(--space-5);
+  padding-left: var(--space-4);
+}
+
+.markdown ul { list-style: disc; }
+.markdown ol { list-style: decimal; }
+
+.markdown li {
+  margin-bottom: var(--space-1);
+}
+
+.markdown code {
+  background: var(--color-surface-alt);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.92em;
+  color: var(--color-accent);
+}
+
+.markdown pre {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  overflow-x: auto;
+  margin-bottom: var(--space-3);
+}
+
+.markdown pre code {
+  background: none;
+  color: var(--color-text);
+  padding: 0;
+  font-size: var(--text-sm);
+}
+
+.markdown a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.markdown hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-4) 0;
+}
+
+.markdown strong { font-weight: var(--weight-semibold); }
+.markdown em     { font-style: italic; }
 /* --------------------------------------------------------------------------
    RESPONSIVE
    -------------------------------------------------------------------------- */
