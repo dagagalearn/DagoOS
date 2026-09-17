@@ -50,7 +50,8 @@ async function loadPageModule(page) {
       await initLedger();
       break;
     case "journal":
-      // await import("./modules/journal.js");
+           const { initJournal } = await import("./modules/journal.js");
+      await initJournal();
       break;
     case "academy":
       // await import("./modules/academy.js");
