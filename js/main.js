@@ -39,8 +39,8 @@ function highlightActiveNav() {
 async function loadPageModule(page) {
   switch (page) {
     case "dashboard":
-      // await import("./modules/dashboard.js");
-      console.log("[DagoOS] Dashboard module not built yet — Phase 7.");
+  const { initDashboard } = await import("./modules/dashboard.js");
+      await initDashboard();
       break;
 
     case "ledger": {
