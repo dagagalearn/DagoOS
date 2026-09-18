@@ -80,6 +80,11 @@ const { initVault } = await import("./modules/vault.js");
       await initLifeTree();
       break;
     }
+        case "settings": {
+      const { initSettings } = await import("./modules/settings.js");
+      await initSettings();
+      break;
+    }
 
     default:
       console.warn("[DagoOS] Unknown page:", page);
