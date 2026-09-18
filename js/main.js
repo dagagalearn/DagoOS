@@ -70,6 +70,11 @@ const { initVault } = await import("./modules/vault.js");
       await initTodo();
       break;
     }
+    case "tree": {
+      const { initLifeTree } = await import("./modules/life-tree.js");
+      await initLifeTree();
+      break;
+    }
 
     default:
       console.warn("[DagoOS] Unknown page:", page);
