@@ -65,6 +65,11 @@ async function loadPageModule(page) {
 const { initVault } = await import("./modules/vault.js");
       await initVault();
       break;
+   case "todo": {
+      const { initTodo } = await import("./modules/todo.js");
+      await initTodo();
+      break;
+    }
 
     default:
       console.warn("[DagoOS] Unknown page:", page);
