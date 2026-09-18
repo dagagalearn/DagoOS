@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dago Life Tree · DagoOS</title>
+
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%236366f1'/></svg>" />
+</head>
+
+<body data-page="tree" data-auth="out">
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <span class="sidebar__brand-dot"></span>
+        <span>DagoOS</span>
+      </div>
+
+      <nav class="sidebar__section">
+        <div class="sidebar__label">Overview</div>
+        <a class="nav-link" href="index.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>Command Center</span>
+        </a>
+      </nav>
+
+      <nav class="sidebar__section">
+        <div class="sidebar__label">Modules</div>
+        <a class="nav-link" href="ledger.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="6" width="20" height="14" rx="2"/>
+            <path d="M2 10h20"/>
+          </svg>
+          <span>Dago Ledger</span>
+        </a>
+        <a class="nav-link" href="journal.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4v16a2 2 0 0 0 2 2h14V4H6a2 2 0 0 0-2 2z"/>
+            <path d="M8 8h8M8 12h8M8 16h5"/>
+          </svg>
+          <span>Dago Journal</span>
+        </a>
+        <a class="nav-link" href="academy.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 9l10-5 10 5-10 5z"/>
+            <path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/>
+          </svg>
+          <span>Dago Academy</span>
+        </a>
+        <a class="nav-link" href="vault.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          </svg>
+          <span>Dago Vault</span>
+        </a>
+        <a class="nav-link" href="todo.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          <span>Dago Todo</span>
+        </a>
+        <a class="nav-link" href="tree.html">
+          <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="4" r="2"/>
+            <circle cx="6" cy="20" r="2"/>
+            <circle cx="18" cy="20" r="2"/>
+            <path d="M12 6v4M6 18v-4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>
+          </svg>
+          <span>Dago Life Tree</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="header">
+      <div class="header__title">Dago Life Tree</div>
+      <div class="header__actions">
+        <div id="auth-area" class="auth-area"></div>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <div class="page-header">
+        <h1 class="page-header__title">Dago Life Tree</h1>
+        <p class="page-header__subtitle">The path you've walked.</p>
+      </div>
+
+      <!-- Toolbar -->
+      <section class="tree-toolbar">
+        <input id="tree-search" class="field__input" type="search"
+               placeholder="Search milestones…" />
+        <select id="tree-filter-category" class="field__input"></select>
+        <select id="tree-filter-status" class="field__input"></select>
+        <select id="tree-sort" class="field__input"></select>
+      </section>
+
+      <!-- Timeline -->
+      <section class="tree-section">
+        <div id="tree-timeline" class="tree-timeline"></div>
+        <p id="tree-empty" class="empty-state hidden">
+          No milestones yet. Tap <strong>+</strong> to record the first one.
+        </p>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- FAB -->
+  <button id="tree-fab" class="fab" type="button" title="Add milestone" aria-label="Add milestone">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </button>
+
+  <!-- Add/Edit modal -->
+  <div id="tree-add-modal" class="modal-backdrop hidden">
+    <div class="modal modal--wide">
+      <button id="tree-add-close" class="modal__close" type="button" aria-label="Close">×</button>
+      <h2 class="modal__title" id="tree-add-title">Add milestone</h2>
+
+      <form id="tree-form" class="form-grid">
+
+        <label class="field field--wide">
+          <span class="field__label">Title</span>
+          <input id="tree-title" class="field__input" type="text"
+                 placeholder="Joined SIT" required />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Date</span>
+          <input id="tree-date" class="field__input" type="date" required />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Category</span>
+          <select id="tree-category" class="field__input"></select>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Status</span>
+          <select id="tree-status" class="field__input"></select>
+        </label>
+
+        <label class="field field--wide">
+          <span class="field__label">Short description</span>
+          <input id="tree-description" class="field__input" type="text"
+                 placeholder="Started BSc in Computer Science" />
+        </label>
+
+        <label class="field field--wide">
+          <span class="field__label">Notes (optional, markdown supported)</span>
+          <textarea id="tree-notes" class="field__input field__input--textarea"
+                    rows="5"
+                    placeholder="Anything worth remembering about this moment…"></textarea>
+        </label>
+
+        <div class="field field--wide field--actions entry-form-actions">
+          <button id="tree-submit" class="btn btn--primary" type="submit">Add milestone</button>
+          <button id="tree-cancel" class="btn btn--ghost" type="button">Cancel</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Detail modal -->
+  <div id="tree-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <button id="tree-modal-close" class="modal__close" type="button" aria-label="Close">×</button>
+      <div id="tree-modal-body" class="modal__body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>
