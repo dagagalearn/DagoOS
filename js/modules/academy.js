@@ -15,6 +15,8 @@
 
 import { listDocs, addDoc, updateDoc, deleteDoc } from "../core/firestore.js";
 import { el, clear, toNumber, formatDate } from "../core/utils.js";
+import { showSkeletons } from "../core/ui-helpers.js";
+
 
 
 /* --------------------------------------------------------------------------
@@ -101,6 +103,9 @@ function cacheRefs() {
    3. LOAD
    -------------------------------------------------------------------------- */
 async function loadAll() {
+  showSkeletons(refs.courseList, 3, "row");
+  showSkeletons(refs.examList, 3, "row");
+  showSkeletons(refs.skillList, 3, "card");
   try {
     state.courses = await listDocs("courses", {
       orderByField: "semester",
