@@ -30,6 +30,8 @@
 
 import { listDocs, addDoc, updateDoc, deleteDoc } from "../core/firestore.js";
 import { el, clear, formatDate, todayISO } from "../core/utils.js";
+import { showSkeletons } from "../core/ui-helpers.js";
+
 
 
 /* --------------------------------------------------------------------------
@@ -223,6 +225,7 @@ function cacheRefs() {
    5. LOAD + RENDER
    -------------------------------------------------------------------------- */
 async function loadAndRender() {
+  showSkeletons(refs.grid, 6, "card");
   try {
     state.files = await listDocs("vaultFiles", {
       orderByField: "date",
