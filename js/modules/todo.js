@@ -26,6 +26,7 @@
 
 import { listDocs, addDoc, updateDoc, deleteDoc } from "../core/firestore.js";
 import { el, clear, formatDate, todayISO } from "../core/utils.js";
+import { showSkeletons } from "../core/ui-helpers.js";
 
 
 /* --------------------------------------------------------------------------
@@ -164,6 +165,7 @@ function cacheRefs() {
    4. LOAD + RENDER
    -------------------------------------------------------------------------- */
 async function loadAndRender() {
+     showSkeletons(refs.list, 5, "row");
   try {
     state.todos = await listDocs("todos", {
       orderByField: "createdAt",
