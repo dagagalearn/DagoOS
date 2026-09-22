@@ -91,3 +91,60 @@ export function renderAuthArea(user, { onSignIn, onSignOut }) {
     slot.appendChild(buildSignInButton(onSignIn));
   }
 }
+
+/* --------------------------------------------------------------------------
+   SKELETON LOADERS
+   --------------------------------------------------------------------------
+   Shimmering placeholder cards shown while Firestore is fetching.
+   Call showSkeletons(container, count, type) before your fetch, and the
+   skeleton disappears automatically when clear(container) is called.
+   -------------------------------------------------------------------------- */
+
+const SKELETON_TYPES = {
+  card: `
+    <div class="skeleton-card">
+      <div class="skeleton-line skeleton-line--lg"></div>
+      <div class="skeleton-line skeleton-line--sm"></div>
+      <div class="skeleton-line skeleton-line--md"></div>
+    </div>`,
+  row: `
+    <div class="skeleton-row">
+      <div class="skeleton-circle"></div>
+      <div class="skeleton-row__body">
+        <div class="skeleton-line skeleton-line--md"></div>
+        <div class="skeleton-line skeleton-line--sm"></div>
+      </div>
+      <div class="skeleton-line skeleton-line--xs"></div>
+    </div>`,
+  stat: `
+    <div class="skeleton-stat">
+      <div class="skeleton-line skeleton-line--xs"></div>
+      <div class="skeleton-line skeleton-line--lg"></div>
+    </div>`,
+  milestone: `
+    <div class="skeleton-milestone">
+      <div class="skeleton-circle skeleton-circle--lg"></div>
+      <div class="skeleton-milestone__body">
+        <div class="skeleton-line skeleton-line--lg"></div>
+        <div class="skeleton-line skeleton-line--sm"></div>
+        <div class="skeleton-line skeleton-line--md"></div>
+      </div>
+    </div>`
+};
+
+/**
+ * Fill a container with skeleton placeholders.
+ * @param {HTMLElement|string} target   element or element id
+ * @param {number}             count    how many skeletons to render
+ * @param {"card"|"row"|"stat"|"milestone"} type
+ */
+export function showSkeletons(target, count = 3, type = "row") {
+  const node = typeof target === "string"
+    ? document.getElementById(target)
+    : target;
+  if (!node) return;
+
+  const html = SKELETON_TYPES[type] || SKELETON_TYPES.row;
+  node.innerHTML = Array.from({ length: count }, () => html).join("");
+  node.classList.add("is-loading");
+}
