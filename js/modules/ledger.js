@@ -17,6 +17,7 @@
 
 import { listDocs, addDoc, updateDoc as fsUpdateDoc, deleteDoc } from "../core/firestore.js";
 import { formatCurrency, formatDate, todayISO, el, clear, toNumber } from "../core/utils.js";
+import { showSkeletons } from "../core/ui-helpers.js";
 
 
 /* --------------------------------------------------------------------------
@@ -78,6 +79,7 @@ function cacheRefs() {
    4. LOAD FROM FIRESTORE + RENDER
    -------------------------------------------------------------------------- */
 async function loadAndRender() {
+  showSkeletons(refs.list, 5, "row");
   try {
     // We sort by `date` (the user-chosen date), not `createdAt`,
     // so back-dated entries appear in their correct place.
