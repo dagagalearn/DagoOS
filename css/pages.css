@@ -2072,6 +2072,107 @@ body[data-auth] .auth-gate {
   color: var(--color-text-muted);
 }
 
+/* --------------------------------------------------------------------------
+   SKELETON LOADERS
+   -------------------------------------------------------------------------- */
+
+.skeleton-card,
+.skeleton-row,
+.skeleton-stat,
+.skeleton-milestone {
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer overlay */
+.skeleton-card::after,
+.skeleton-row::after,
+.skeleton-stat::after,
+.skeleton-milestone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 100%
+  );
+  animation: dagoos-shimmer 1.4s infinite;
+}
+
+@keyframes dagoos-shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Skeleton pieces */
+.skeleton-line {
+  height: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-hi);
+  margin-bottom: var(--space-2);
+}
+
+.skeleton-line--xs { width: 25%; height: 8px; }
+.skeleton-line--sm { width: 45%; height: 8px; }
+.skeleton-line--md { width: 70%; }
+.skeleton-line--lg { width: 90%; height: 14px; }
+
+.skeleton-line:last-child { margin-bottom: 0; }
+
+.skeleton-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-hi);
+  flex-shrink: 0;
+}
+
+.skeleton-circle--lg {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+}
+
+/* Row layout (Ledger, Todo, Vault list) */
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.skeleton-row__body { flex: 1; }
+
+.skeleton-row__body .skeleton-line { margin-bottom: var(--space-2); }
+
+/* Stat layout (dashboard / summary cards) */
+.skeleton-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skeleton-stat .skeleton-line { margin-bottom: 0; }
+
+/* Milestone layout (Life Tree) */
+.skeleton-milestone {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.skeleton-milestone__body { flex: 1; }
+
+/* When a container has the .is-loading class, hide any empty-state message
+   so it doesn't flash "no data" before real data arrives */
+.is-loading ~ .empty-state { display: none; }
+
 /* --- Responsive --- */
 @media (max-width: 700px) {
   .vault-toolbar,
