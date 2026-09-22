@@ -19,6 +19,8 @@
 import { listDocs, addDoc, updateDoc, deleteDoc } from "../core/firestore.js";
 import { renderMarkdown, excerpt } from "../services/markdown.js";
 import { formatDate, todayISO, el, clear } from "../core/utils.js";
+import { showSkeletons } from "../core/ui-helpers.js";
+
 
 
 /* --------------------------------------------------------------------------
@@ -68,6 +70,7 @@ function cacheRefs() {
    3. LOAD + RENDER
    -------------------------------------------------------------------------- */
 async function loadAndRender() {
+     showSkeletons(refs.list, 3, "card");
   try {
     state.entries = await listDocs("journal", {
       orderByField: "date",
