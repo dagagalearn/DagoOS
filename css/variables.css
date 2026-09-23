@@ -1,147 +1,337 @@
 /* ==========================================================================
-   DagoOS — Design Tokens (CSS Custom Properties)
+   DagoOS — Design Tokens
    --------------------------------------------------------------------------
-   This file is the single source of truth for colors, spacing, fonts,
-   radii, and shadows. Every other CSS file references these via var(--name).
+   Single source of truth for every visual property. Style guide: Linear ×
+   Notion hybrid — dark, minimal, content-first, precise.
 
-   CHANGE A VALUE HERE → IT UPDATES EVERYWHERE. That's the whole point.
+   Principles:
+     • Neutral-dominant. Accent used sparingly (one primary action per view).
+     • Depth via background contrast, not borders.
+     • Strict 4px rhythm for spacing. No arbitrary values.
+     • Four-level text hierarchy.
+     • Restrained radius. Rounded only where it aids legibility.
+     • Easing curves, not linear timers.
+
+   Load order: variables → base → layout → components → pages
    ========================================================================== */
 
-
-/* --------------------------------------------------------------------------
-   1. ROOT — global variables available to the entire app
-   -------------------------------------------------------------------------- */
 :root {
 
-  /* ---------- 1.1 COLOR: Backgrounds ---------- */
-  /* Layered surfaces. Higher number = "closer to the user" / lighter. */
-  --color-bg:            #0b0f17;   /* Page background — very dark navy     */
-  --color-surface:       #131826;   /* Cards, panels                        */
-  --color-surface-alt:   #1a2033;   /* Nested surfaces, inputs, hover state */
-  --color-surface-hi:    #232b42;   /* Elevated: modals, popovers, tooltips */
+  /* ========================================================================
+     1. SURFACES — Background layers, darkest at the bottom
+     ======================================================================== */
+  --surface-0: #0a0b0d;       /* Page background — near-black, cool */
+  --surface-1: #111214;       /* Cards, panels — first elevation */
+  --surface-2: #17181c;       /* Nested surfaces, hover */
+  --surface-3: #1e2024;       /* Elevated: dropdowns, popovers */
+  --surface-4: #26282d;       /* Highest: modals, tooltips */
 
-  /* ---------- 1.2 COLOR: Borders & Dividers ---------- */
-  --color-border:        #232b42;
-  --color-border-soft:   #1a2033;
+  /* Overlay for modals — dark translucent */
+  --overlay: rgba(0, 0, 0, 0.72);
 
-  /* ---------- 1.3 COLOR: Text ---------- */
-  --color-text:          #e6e9f0;   /* Default body text                    */
-  --color-text-muted:    #9aa3b8;   /* Secondary text, labels, metadata     */
-  --color-text-faint:    #5f6881;   /* Disabled, placeholder                */
-  --color-text-invert:   #0b0f17;   /* Text on light/accent backgrounds     */
+  /* ========================================================================
+     2. BORDERS — Use sparingly. Only where depth alone isn't enough.
+     ======================================================================== */
+  --border:       #1f2126;    /* Default visible border */
+  --border-soft:  #17181c;    /* Subtle, for tight grids */
+  --border-strong:#2a2d33;    /* Emphasized (inputs on focus will use accent) */
 
-  /* ---------- 1.4 COLOR: Brand / Accent ---------- */
-  /* Blue-violet. Used for primary buttons, active nav, focus rings. */
-  --color-accent:        #6366f1;
-  --color-accent-hover:  #7c7ff5;
-  --color-accent-soft:   #6366f120;  /* 12% opacity — for subtle bg tints    */
+  /* ========================================================================
+     3. TEXT — Four levels of hierarchy
+     ======================================================================== */
+  --text-primary:   #e8eaed;  /* Main content — bright, readable */
+  --text-secondary: #a6acb8;  /* Supporting text — labels, meta */
+  --text-tertiary:  #6e7480;  /* Faint — timestamps, hints */
+  --text-quaternary:#4a4f59;  /* Disabled, placeholder */
+  --text-inverse:   #0a0b0d;  /* Text on light surfaces */
+  --text-on-accent: #ffffff;
 
-  /* ---------- 1.5 COLOR: Semantic (state) ---------- */
-  /* Every module reuses these — Ledger, Academy, Vault all benefit. */
-  --color-success:       #22c55e;   /* Income, completed, valid             */
-  --color-success-soft:  #22c55e20;
-  --color-warning:       #f59e0b;   /* Pending, missing, caution            */
-  --color-warning-soft:  #f59e0b20;
-  --color-danger:        #ef4444;   /* Expense, error, destructive          */
-  --color-danger-soft:   #ef444420;
-  --color-info:          #38bdf8;   /* Tips, neutral highlights             */
-  --color-info-soft:     #38bdf820;
+  /* ========================================================================
+     4. ACCENT — Indigo. Used for: primary buttons, focus rings, one highlight
+         per screen. Not for decorative purposes.
+     ======================================================================== */
+  --accent:         #6366f1;
+  --accent-hover:   #7c7ff5;
+  --accent-active:  #5158d9;
+  --accent-soft:    rgba(99, 102, 241, 0.12);   /* For subtle backgrounds */
+  --accent-ring:    rgba(99, 102, 241, 0.35);   /* Focus glow */
 
-  /* ---------- 1.6 SPACING SCALE ---------- */
-  /* 4px base. Use these for padding, margin, and gap. NEVER hardcode px. */
-  --space-1:  4px;
-  --space-2:  8px;
-  --space-3:  12px;
-  --space-4:  16px;
-  --space-5:  20px;
-  --space-6:  24px;
-  --space-8:  32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
+  /* ========================================================================
+     5. SEMANTIC — State colors, used with restraint
+     ======================================================================== */
+  --success:        #10b981;
+  --success-soft:   rgba(16, 185, 129, 0.12);
+  --success-ring:   rgba(16, 185, 129, 0.35);
 
-  /* ---------- 1.7 RADII (rounded corners) ---------- */
-  --radius-sm:  6px;
-  --radius-md:  10px;
-  --radius-lg:  14px;
-  --radius-xl:  20px;
-  --radius-full: 9999px;   /* For pills, avatars, circular buttons */
+  --warning:        #f59e0b;
+  --warning-soft:   rgba(245, 158, 11, 0.12);
+  --warning-ring:   rgba(245, 158, 11, 0.35);
 
-  /* ---------- 1.8 SHADOWS ---------- */
-  /* Subtle depth on dark UIs — heavy shadows look muddy, keep them soft. */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --danger:         #ef4444;
+  --danger-hover:   #dc2626;
+  --danger-soft:    rgba(239, 68, 68, 0.12);
+  --danger-ring:    rgba(239, 68, 68, 0.35);
 
-  /* ---------- 1.9 TYPOGRAPHY ---------- */
-  /* System font stack: uses the OS's native font. Free, fast, no download. */
+  --info:           #3b82f6;
+  --info-soft:      rgba(59, 130, 246, 0.12);
+
+  /* ========================================================================
+     6. SPACING — 4px rhythm. Strict scale. No arbitrary values.
+     ======================================================================== */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;    /* Note: 24px, skipping 20px to keep rhythm tight */
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* ========================================================================
+     7. RADIUS — Restrained. Sizes chosen for their context.
+     ======================================================================== */
+  --radius-xs:  4px;     /* Badges, chips, tiny elements */
+  --radius-sm:  6px;     /* Buttons, inputs */
+  --radius-md:  8px;     /* Cards, panels */
+  --radius-lg:  12px;    /* Large modals, feature cards */
+  --radius-xl:  16px;    /* Hero elements */
+  --radius-full: 9999px; /* Pills, avatars */
+
+  /* ========================================================================
+     8. SHADOWS — Refined. Dark UIs need less shadow, but when used it should
+         feel deliberate.
+     ======================================================================== */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35),
+               0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.35),
+               0 2px 4px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.4),
+               0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5),
+               0 8px 16px rgba(0, 0, 0, 0.35);
+
+  /* ========================================================================
+     9. TYPOGRAPHY — System stack + strict scale
+     ======================================================================== */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-               "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+               "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+               "Liberation Mono", monospace;
 
-  /* Font sizes — a clear hierarchy from tiny meta to big headings. */
-  --text-xs:   12px;
-  --text-sm:   13px;
-  --text-base: 15px;    /* Default body — slightly larger than 14 for calm feel */
-  --text-md:   17px;
-  --text-lg:   20px;
-  --text-xl:   24px;
-  --text-2xl:  32px;
-  --text-3xl:  42px;
+  /* Font sizes — tighter ratio, clearer hierarchy */
+  --text-xs:    11px;   /* Uppercase micro-labels, meta */
+  --text-sm:    12px;   /* Secondary text, tabs */
+  --text-base:  14px;   /* Body — comfortable at 14px on modern screens */
+  --text-md:    16px;   /* Emphasized body, card titles */
+  --text-lg:    18px;   /* Section headings */
+  --text-xl:    22px;   /* Page sub-headings */
+  --text-2xl:   28px;   /* Page headings */
+  --text-3xl:   36px;   /* Hero headings, stat values */
 
   /* Line heights */
-  --leading-tight: 1.25;
-  --leading-normal: 1.55;
+  --leading-tight:  1.2;    /* Headings */
+  --leading-snug:   1.4;    /* Card titles */
+  --leading-normal: 1.6;    /* Body text */
+  --leading-loose:  1.75;   /* Long-form prose (journal body) */
+
+  /* Letter spacing — tighter for large text, looser for uppercase labels */
+  --tracking-tight:  -0.015em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.03em;
+  --tracking-wider:  0.06em;
 
   /* Font weights */
-  --weight-normal: 400;
-  --weight-medium: 500;
+  --weight-normal:   400;
+  --weight-medium:   500;
   --weight-semibold: 600;
-  --weight-bold: 700;
+  --weight-bold:     700;
 
-  /* ---------- 1.10 LAYOUT DIMENSIONS ---------- */
-  /* Controls the shell: sidebar width, header height, max content width. */
-  --sidebar-width:  240px;
-  --header-height:  60px;
-  --content-max:    1200px;   /* Prevents content from stretching on ultrawide */
+  /* ========================================================================
+     10. LAYOUT DIMENSIONS
+     ======================================================================== */
+  --sidebar-width: 240px;
+  --header-height: 56px;      /* Slightly slimmer — feels more modern */
+  --content-max:   1080px;    /* Narrower for readable text columns */
 
-  /* ---------- 1.11 TRANSITIONS ---------- */
-  /* Consistent easing so every hover/click feels like one app. */
-  --transition-fast:   120ms ease;
-  --transition-normal: 200ms ease;
-  --transition-slow:   320ms ease;
+  /* ========================================================================
+     11. MOTION — Easing curves, not just durations
+     ======================================================================== */
+  --duration-instant: 80ms;
+  --duration-fast:    150ms;
+  --duration-normal:  250ms;
+  --duration-slow:    400ms;
 
-  /* ---------- 1.12 Z-INDEX SCALE ---------- */
-  /* Named layers so we never fight "who's on top of whom." */
-  --z-sidebar:   100;
-  --z-header:    200;
-  --z-dropdown:  300;
-  --z-modal:     400;
-  --z-toast:     500;
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);     /* Decelerate */
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);     /* Accelerate */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);    /* Smooth both ends */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Playful overshoot */
 
+  /* Shorthand for the common case */
+  --transition-fast:   var(--duration-fast) var(--ease-out);
+  --transition-normal: var(--duration-normal) var(--ease-out);
+  --transition-slow:   var(--duration-slow) var(--ease-out);
+
+  /* ========================================================================
+     12. FOCUS — Accessible, visible, on-brand
+     ======================================================================== */
+  --focus-ring: 0 0 0 3px var(--accent-ring);
+
+  /* ========================================================================
+     13. SELECTION — Text selection color
+     ======================================================================== */
+  --selection-bg: rgba(99, 102, 241, 0.35);
+  --selection-fg: #ffffff;
+
+  /* ========================================================================
+     14. Z-INDEX — Named layers. No magic numbers.
+     ======================================================================== */
+  --z-base:     1;
+  --z-sidebar:  10;
+  --z-header:   20;
+  --z-dropdown: 30;
+  --z-modal:    40;
+  --z-toast:    50;
+  --z-loading:  60;
+
+  /* ========================================================================
+     15. COMPONENT-SPECIFIC TOKENS
+     ------------------------------------------------------------------------
+        Tokens that describe specific components, for consistency across
+        files. Override here to theme a component globally.
+     ======================================================================== */
+
+  /* Buttons */
+  --btn-height-sm: 28px;
+  --btn-height-md: 36px;
+  --btn-height-lg: 44px;
+  --btn-padding-sm: 0 var(--space-3);
+  --btn-padding-md: 0 var(--space-4);
+  --btn-padding-lg: 0 var(--space-5);
+
+  /* Inputs */
+  --input-height: 40px;
+  --input-padding: var(--space-3) var(--space-4);
+
+  /* Cards */
+  --card-padding: var(--space-5);
+  --card-radius: var(--radius-md);
+  --card-bg: var(--surface-1);
+
+  /* Modals */
+  --modal-padding: var(--space-6);
+  --modal-radius: var(--radius-lg);
+  --modal-bg: var(--surface-3);
+
+  /* Sidebar */
+  --nav-link-padding: var(--space-2) var(--space-3);
+  --nav-link-radius: var(--radius-sm);
 }
 
+/* ==========================================================================
+   LEGACY ALIASES — Keep old variable names working
+   --------------------------------------------------------------------------
+   Previous code references these names. We map them to the new tokens so
+   nothing breaks during the transition. Remove in a future cleanup pass.
+   ========================================================================== */
+:root {
+  --color-bg:            var(--surface-0);
+  --color-surface:       var(--surface-1);
+  --color-surface-alt:   var(--surface-2);
+  --color-surface-hi:    var(--surface-3);
 
-/* --------------------------------------------------------------------------
-   2. LIGHT THEME (optional — activated by adding data-theme="light"
-      to the <html> tag). We won't wire up the toggle until Phase 8,
-      but defining it now means the app supports it for free later.
-   -------------------------------------------------------------------------- */
+  --color-border:        var(--border);
+  --color-border-soft:   var(--border-soft);
+
+  --color-text:          var(--text-primary);
+  --color-text-muted:    var(--text-secondary);
+  --color-text-faint:    var(--text-tertiary);
+  --color-text-invert:   var(--text-inverse);
+
+  --color-accent:        var(--accent);
+  --color-accent-hover:  var(--accent-hover);
+  --color-accent-soft:   var(--accent-soft);
+
+  --color-success:       var(--success);
+  --color-success-soft:  var(--success-soft);
+  --color-warning:       var(--warning);
+  --color-warning-soft:  var(--warning-soft);
+  --color-danger:        var(--danger);
+  --color-danger-soft:   var(--danger-soft);
+  --color-info:          var(--info);
+  --color-info-soft:     var(--info-soft);
+
+  --radius-sm:  var(--radius-sm);
+  --radius-md:  var(--radius-md);
+  --radius-lg:  var(--radius-lg);
+  --radius-xl:  var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  --shadow-sm: var(--shadow-xs);
+  --shadow-md: var(--shadow-sm);
+  --shadow-lg: var(--shadow-md);
+
+  --text-sm:   var(--text-sm);
+  --text-base: var(--text-base);
+  --text-md:   var(--text-md);
+  --text-lg:   var(--text-lg);
+  --text-xl:   var(--text-2xl);
+  --text-2xl:  var(--text-3xl);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --space-1:  var(--space-1);
+  --space-2:  var(--space-2);
+  --space-3:  var(--space-3);
+  --space-4:  var(--space-4);
+  --space-5:  var(--space-5);
+  --space-6:  var(--space-6);
+  --space-8:  var(--space-7);   /* old space-8 (32px) → new space-7 */
+  --space-10: var(--space-7);
+  --space-12: var(--space-7);
+  --space-16: var(--space-8);
+
+  --z-sidebar:  var(--z-sidebar);
+  --z-header:   var(--z-header);
+  --z-dropdown: var(--z-dropdown);
+  --z-modal:    var(--z-modal);
+  --z-toast:    var(--z-toast);
+
+  --transition-fast:   var(--transition-fast);
+  --transition-normal: var(--transition-normal);
+  --transition-slow:   var(--transition-slow);
+}
+
+/* ==========================================================================
+   LIGHT THEME — Scaffolded for Phase-11 toggle (unused for now)
+   ========================================================================== */
 [data-theme="light"] {
-  --color-bg:          #f6f7fb;
-  --color-surface:     #ffffff;
-  --color-surface-alt: #eef1f7;
-  --color-surface-hi:  #ffffff;
+  --surface-0: #fafafa;
+  --surface-1: #ffffff;
+  --surface-2: #f4f4f6;
+  --surface-3: #ffffff;
+  --surface-4: #ffffff;
 
-  --color-border:      #dfe3ec;
-  --color-border-soft: #eaedf4;
+  --border:        #e5e7eb;
+  --border-soft:   #f0f1f3;
+  --border-strong: #d1d5db;
 
-  --color-text:        #1a1f2e;
-  --color-text-muted:  #5b6478;
-  --color-text-faint:  #9aa3b8;
-  --color-text-invert: #ffffff;
+  --text-primary:    #111827;
+  --text-secondary:  #4b5563;
+  --text-tertiary:   #9ca3af;
+  --text-quaternary: #d1d5db;
+  --text-inverse:    #ffffff;
 
-  --shadow-sm: 0 1px 2px rgba(15, 20, 35, 0.06);
-  --shadow-md: 0 4px 12px rgba(15, 20, 35, 0.08);
-  --shadow-lg: 0 12px 32px rgba(15, 20, 35, 0.12);
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08),
+               0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 8px rgba(15, 23, 42, 0.08),
+               0 2px 4px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 12px 24px rgba(15, 23, 42, 0.1),
+               0 4px 8px rgba(15, 23, 42, 0.06);
+
+  --overlay: rgba(15, 23, 42, 0.4);
 }
