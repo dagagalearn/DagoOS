@@ -13,6 +13,7 @@
 import { listDocs, addDoc } from "../core/firestore.js";
 import { el, clear, formatCurrency, formatDate, toNumber, todayISO }
   from "../core/utils.js";
+import { showSkeletons } from "../core/ui-helpers.js";
 
 
 /* --------------------------------------------------------------------------
@@ -71,12 +72,17 @@ function cacheRefs() {
    3. LOAD ALL MODULES IN PARALLEL
    -------------------------------------------------------------------------- */
 async function loadAll() {
+     // Show skeletons on the two lists + stat cards
+  showSkeletons(refs.txList, 3, "row");
+  showSkeletons(refs.activityList, 4, "row");
+
   const safe = async (name, opts) => {
     try { return await listDocs(name, opts); }
     catch (err) {
       console.warn(`[Dashboard] Could not load ${name}:`, err.message);
       return [];
     }
+      
   };
 
   const [transactions, journal, courses, vault, activity] = await Promise.all([
