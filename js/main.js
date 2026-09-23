@@ -257,10 +257,10 @@ function boot() {
    initTheme(); 
   console.log("[DagoOS] Booting…");
   highlightActiveNav();
-  mountThemeToggle();
   showLoading("Checking session…");
 
   onAuthChange(async (user) => {
+     mountThemeToggle();  
     const page = document.body.dataset.page;
 
     // ---- Not signed in ----
