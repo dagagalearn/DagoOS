@@ -379,3 +379,12 @@ table {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   THEME BOOTSTRAP
+   --------------------------------------------------------------------------
+   Applied to <html> so the correct background paints before <body> styles.
+   ========================================================================== */
+
+html[data-theme="light"]  { background: #fafafa; }
+html[data-theme="dark"]   { background: #0a0b0d; }
