@@ -24,6 +24,7 @@
 import { listDocs, addDoc, updateDoc, deleteDoc } from "../core/firestore.js";
 import { el, clear, formatDate, todayISO } from "../core/utils.js";
 import { renderMarkdown } from "../services/markdown.js";
+import { showSkeletons } from "../core/ui-helpers.js";
 
 
 /* --------------------------------------------------------------------------
@@ -215,6 +216,7 @@ function cacheRefs() {
    5. LOAD + RENDER
    -------------------------------------------------------------------------- */
 async function loadAndRender() {
+  showSkeletons(refs.timeline, 4, "milestone");
   try {
     state.milestones = await listDocs("milestones", {
       orderByField: "date",
