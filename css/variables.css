@@ -268,3 +268,26 @@
 
   --overlay: rgba(15, 23, 42, 0.4);
 }
+
+/* ==========================================================================
+   LIGHT THEME — Refinements
+   --------------------------------------------------------------------------
+   The base [data-theme="light"] block above sets core surfaces and text.
+   This block refines tints and text-contrast for light backgrounds.
+   ========================================================================== */
+
+[data-theme="light"] {
+  /* Tint backgrounds need slightly higher opacity on light surfaces */
+  --accent-soft:  rgba(99, 102, 241, 0.10);
+  --success-soft: rgba(16, 185, 129, 0.10);
+  --warning-soft: rgba(245, 158, 11, 0.12);
+  --danger-soft:  rgba(239, 68, 68, 0.10);
+  --info-soft:    rgba(59, 130, 246, 0.10);
+
+  /* Selection + focus — darken slightly for contrast on white */
+  --accent-ring: rgba(99, 102, 241, 0.30);
+  --focus-ring:  0 0 0 3px var(--accent-ring);
+
+  /* Text on accent stays white — good contrast either way */
+  --text-on-accent: #ffffff;
+}
