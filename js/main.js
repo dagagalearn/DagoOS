@@ -17,6 +17,7 @@ import { renderAuthArea } from "./core/ui-helpers.js";
 import {
   isOwner, isUnlocked, markUnlocked, clearUnlock, checkPassphrase
 } from "./core/app-lock.js";
+import { initTheme, mountThemeToggle } from "./core/theme.js";
 
 
 /* --------------------------------------------------------------------------
@@ -253,9 +254,10 @@ function hideLoading() {
    7. BOOT
    -------------------------------------------------------------------------- */
 function boot() {
+   initTheme(); 
   console.log("[DagoOS] Booting…");
   highlightActiveNav();
-
+  mountThemeToggle();
   showLoading("Checking session…");
 
   onAuthChange(async (user) => {
