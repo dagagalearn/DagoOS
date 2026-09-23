@@ -116,7 +116,11 @@ function setAuthGate(active, message = null) {
     }
     gate.innerHTML = `
       <div class="auth-gate__inner">
-        <div class="auth-gate__icon">🔒</div>
+        <div class="auth-gate__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="10" rx="2"/>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            <circle cx="12" cy="16" r="1"/>
+          </svg></div>
         <h2 class="auth-gate__title">Private application</h2>
         <p class="auth-gate__text">
           ${message || "DagoOS belongs to a single user. If you are not the owner, this app is not for you. If you are, sign in below."}
@@ -162,7 +166,12 @@ function setPassLock(active) {
 function bindPassLockInput(lock) {
   lock.innerHTML = `
     <div class="auth-gate__inner">
-      <div class="auth-gate__icon">🔑</div>
+      <div class="auth-gate__icon"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="7.5" cy="15.5" r="5.5"/>
+          <path d="M11.5 11.5 21 3"/>
+          <path d="M16 5.5l2.5 2.5"/>
+          <path d="M18.5 3l2.5 2.5"/>
+        </svg></div>
       <h2 class="auth-gate__title">Welcome back</h2>
       <p class="auth-gate__text">
         Enter your passphrase to unlock DagoOS. You'll only need to do this
