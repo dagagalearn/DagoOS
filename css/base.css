@@ -1,12 +1,8 @@
 /* ==========================================================================
    DagoOS — Base Layer
    --------------------------------------------------------------------------
-   Purpose:
-     1. Reset browser default styling (so all browsers start identical).
-     2. Apply typography and background using our variables.
-     3. Set sane defaults for common elements (links, buttons, inputs).
-
-   Load order: variables.css → base.css → layout.css → components.css
+   Reset + global typography + default element styling. Every other CSS file
+   builds on this. Load order: variables → base → layout → components → pages.
    ========================================================================== */
 
 
@@ -17,36 +13,39 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box;      /* padding/border count INSIDE width — no surprises */
-  margin: 0;                   /* kill browser default margins everywhere */
+  box-sizing: border-box;
+  margin: 0;
   padding: 0;
 }
 
 html {
-  /* Prevent iOS from auto-zooming on input focus */
   -webkit-text-size-adjust: 100%;
-  /* Smooth scrolling for in-page anchors */
   scroll-behavior: smooth;
+  /* Prevent iOS rubber-band overscroll from revealing white background */
+  background: var(--surface-0);
+  /* Respect user's reduced motion preference */
+  scrollbar-gutter: stable;
 }
 
 body {
-  min-height: 100vh;           /* page always fills the viewport */
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  min-height: 100vh;
+  background: var(--surface-0);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   font-weight: var(--weight-normal);
-  /* Crisper text rendering on macOS */
+  letter-spacing: var(--tracking-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Block horizontal scroll from any stray wide element */
+  text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 
 /* --------------------------------------------------------------------------
-   2. MEDIA & EMBEDS — behave predictably
+   2. MEDIA & EMBEDS
    -------------------------------------------------------------------------- */
 
 img,
@@ -55,9 +54,12 @@ video,
 canvas,
 svg {
   display: block;
-  max-width: 100%;             /* never overflow its container */
+  max-width: 100%;
   height: auto;
 }
+
+/* Prevent svg fills from breaking when used as icons */
+svg { fill: none; }
 
 
 /* --------------------------------------------------------------------------
@@ -67,38 +69,88 @@ svg {
 h1, h2, h3, h4, h5, h6 {
   font-weight: var(--weight-semibold);
   line-height: var(--leading-tight);
-  color: var(--color-text);
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
 }
 
 h1 { font-size: var(--text-3xl); }
 h2 { font-size: var(--text-2xl); }
 h3 { font-size: var(--text-xl);  }
-h4 { font-size: var(--text-lg);  }
-h5 { font-size: var(--text-md);  }
-h6 { font-size: var(--text-base); }
+h4 { font-size: var(--text-lg);  font-weight: var(--weight-medium); }
+h5 { font-size: var(--text-md);  font-weight: var(--weight-medium); }
+h6 {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-secondary);
+}
 
 p {
   margin-bottom: var(--space-4);
+  line-height: var(--leading-normal);
 }
+
+p:last-child { margin-bottom: 0; }
 
 small {
   font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  color: var(--text-tertiary);
 }
 
 strong, b {
   font-weight: var(--weight-semibold);
+  color: var(--text-primary);
 }
 
-code, pre, kbd {
+em, i { font-style: italic; }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--space-5) 0;
+}
+
+/* Monospace + code */
+code, pre, kbd, samp {
   font-family: var(--font-mono);
   font-size: 0.92em;
+  font-feature-settings: "liga" 0;
 }
 
 code {
-  background: var(--color-surface-alt);
+  background: var(--surface-2);
+  color: var(--accent);
   padding: 2px 6px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-soft);
+}
+
+pre {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+kbd {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-xs);
+  padding: 2px 6px;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
 }
 
 
@@ -107,92 +159,223 @@ code {
    -------------------------------------------------------------------------- */
 
 a {
-  color: var(--color-accent);
+  color: var(--accent);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-accent-hover);
-  text-decoration: underline;
+  color: var(--accent-hover);
+}
+
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-xs);
 }
 
 
 /* --------------------------------------------------------------------------
-   5. FORM ELEMENTS — inherit fonts, drop native chrome
+   5. FORM ELEMENTS
    -------------------------------------------------------------------------- */
 
 input,
 button,
 textarea,
 select {
-  font: inherit;               /* inherit font from parent — no 12px inputs */
+  font: inherit;
   color: inherit;
+  letter-spacing: inherit;
 }
 
 button {
   cursor: pointer;
   border: none;
   background: none;
+  /* Remove iOS tap highlight — feels native on mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Remove the ugly default focus ring, but add our own accessible one */
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* Number inputs — tabular numerals for aligned columns */
+input[type="number"],
+input[type="date"],
+input[type="time"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kill the ugly default number spinner */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+/* Fix Chrome's autofill background — it normally shows pale yellow */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-2) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Focus rings — accessible, on-brand */
+:focus { outline: none; }
+
 :focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-xs);
+  transition: box-shadow var(--transition-fast);
 }
 
 
 /* --------------------------------------------------------------------------
-   6. LISTS — strip markers by default (add back where wanted)
+   6. LISTS
    -------------------------------------------------------------------------- */
 
 ul, ol {
   list-style: none;
 }
 
+/* Re-enable lists inside prose (journal body, markdown) */
+.markdown ul,
+.markdown ol {
+  list-style: revert;
+  padding-left: var(--space-5);
+  margin: var(--space-3) 0;
+}
+
+.markdown li {
+  margin-bottom: var(--space-2);
+}
+
 
 /* --------------------------------------------------------------------------
-   7. SCROLLBAR — subtle, on-brand (Chromium & Firefox)
+   7. TEXT SELECTION
+   -------------------------------------------------------------------------- */
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+::-moz-selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+
+/* --------------------------------------------------------------------------
+   8. SCROLLBARS — Slim, quiet, on-brand
    -------------------------------------------------------------------------- */
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-surface-hi);
+  background: var(--surface-3);
   border-radius: var(--radius-full);
-  border: 2px solid var(--color-bg);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border);
+  background: var(--surface-4);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-surface-hi) var(--color-bg);
+  scrollbar-color: var(--surface-3) transparent;
 }
 
 
 /* --------------------------------------------------------------------------
-   8. UTILITY CLASSES — tiny helpers reused everywhere
+   9. TABLE DEFAULTS
+   -------------------------------------------------------------------------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* --------------------------------------------------------------------------
+   10. UTILITY CLASSES — Small, focused, reused everywhere
    -------------------------------------------------------------------------- */
 
 .hidden { display: none !important; }
-.sr-only {                     /* Visible only to screen readers */
+
+.sr-only {
   position: absolute;
   width: 1px; height: 1px;
   padding: 0; margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+.text-muted     { color: var(--text-secondary); }
+.text-faint     { color: var(--text-tertiary); }
+.text-xs        { font-size: var(--text-xs); }
+.text-sm        { font-size: var(--text-sm); }
+.text-lg        { font-size: var(--text-lg); }
+.text-center    { text-align: center; }
+.text-right     { text-align: right; }
+.text-mono      { font-family: var(--font-mono); }
+.text-tabular   { font-variant-numeric: tabular-nums; }
+
+.flex           { display: flex; }
+.flex-col       { flex-direction: column; }
+.items-center   { align-items: center; }
+.justify-between{ justify-content: space-between; }
+.gap-2          { gap: var(--space-2); }
+.gap-3          { gap: var(--space-3); }
+.gap-4          { gap: var(--space-4); }
+
+.mt-2           { margin-top: var(--space-2); }
+.mt-4           { margin-top: var(--space-4); }
+.mb-4           { margin-bottom: var(--space-4); }
+.mb-6           { margin-bottom: var(--space-6); }
+
+
+/* --------------------------------------------------------------------------
+   11. REDUCED MOTION — Respect user preference
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
